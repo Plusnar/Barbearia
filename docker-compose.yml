@@ -4,6 +4,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: barbearia-db
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: barbearia
@@ -15,9 +16,25 @@ services:
     networks:
       - barbearia-network
 
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: barbearia-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - barbearia-network
+
   api:
     build: ./backend
     container_name: barbearia-api
+    restart: always
     environment:
       DB_HOST: mysql
       DB_USER: root
