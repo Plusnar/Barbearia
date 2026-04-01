@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Barbearia"
+        android:usesCleartextTraffic="false">
+
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.customer.MainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.customer.AppointmentBookingActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.admin.AdminPanelActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.barber.BarberDashboardActivity"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

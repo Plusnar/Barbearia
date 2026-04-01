@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Barbearia</string>
+    <string name="login_title">Entrar</string>
+    <string name="register_title">Criar Conta</string>
+    <string name="email">Email</string>
+    <string name="password">Senha</string>
+    <string name="name">Nome</string>
+    <string name="phone">Telefone</string>
+    <string name="confirm_password">Confirmar Senha</string>
+    <string name="login_button">Entrar</string>
+    <string name="register_button">Criar Conta</string>
+    <string name="logout">Sair</string>
+    <string name="new_appointment">Nova Reserva</string>
+    <string name="book_appointment">Agendar</string>
+    <string name="select_date">Selecionar Data</string>
+    <string name="select_time">Selecionar Horário</string>
+    <string name="select_barber">Escolher Barbeiro</string>
+    <string name="select_service">Escolher Serviço</string>
+    <string name="no_appointments">Nenhuma reserva agendada</string>
+    <string name="appointments">Minhas Reservas</string>
+    <string name="admin_panel">Painel do Admin</string>
+    <string name="barber_dashboard">Dashboard do Barbeiro</string>
+    <string name="total_appointments">Total de Reservas</string>
+    <string name="completed_appointments">Reservas Completadas</string>
+    <string name="total_revenue">Receita Total</string>
+    <string name="active_barbers">Barbeiros Ativos</string>
+    <string name="total_customers">Total de Clientes</string>
+</resources>

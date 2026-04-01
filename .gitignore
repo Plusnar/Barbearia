@@ -1,0 +1,38 @@
+# Backend
+backend/node_modules/
+backend/npm-debug.log*
+backend/.env
+backend/.env.local
+backend/.env.*.local
+backend/dist/
+backend/build/
+
+# Android
+android/.gradle/
+android/local.properties
+android/.idea/
+android/*.iml
+android/*.apk
+android/*.ap_
+android/*.aab
+android/build/
+android/.DS_Store
+android/.externalNativeBuild
+android/.cxx/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDEs
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Database
+*.sql.bak
+database/.env
