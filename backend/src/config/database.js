@@ -3,6 +3,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+console.log('🔗 Database Configuration:');
+console.log('  HOST:', process.env.DATABASE_HOST);
+console.log('  PORT:', process.env.DATABASE_PORT);
+console.log('  DATABASE:', process.env.DATABASE_NAME);
+console.log('  USER:', process.env.DATABASE_USER);
+
 const db = mysql.createPool({
   connectionLimit: 10,
   host: process.env.DATABASE_HOST || 'localhost',

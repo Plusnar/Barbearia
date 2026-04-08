@@ -12,12 +12,15 @@ const router = express.Router();
 router.post('/register', (req, res) => {
   const { name, email, phone, password, role } = req.body;
 
+  console.log('📝 Register attempt:', { name, email, phone, role });
+
   if (!name || !email || !phone || !password) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
   db.query('SELECT id FROM users WHERE email = ?', [email], (err, results) => {
     if (err) {
+      console.error('❌ Database error (SELECT):', err);
       return res.status(500).json({ success: false, message: 'Database error' });
     }
     if (results.length > 0) {
@@ -28,13 +31,18 @@ router.post('/register', (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, 10);
     const userRole = role || 'CUSTOMER';
 
+    console.log('💾 Inserting user:', userId);
+
     db.query(
       'INSERT INTO users (id, name, email, phone, password, role) VALUES (?, ?, ?, ?, ?, ?)',
       [userId, name, email, phone, hashedPassword, userRole],
       (err) => {
         if (err) {
+          console.error('❌ Database error (INSERT):', err);
           return res.status(500).json({ success: false, message: 'Database error' });
         }
+
+        console.log('✅ User registered successfully:', userId);
 
         const token = jwt.sign(
           { userId, role: userRole },
