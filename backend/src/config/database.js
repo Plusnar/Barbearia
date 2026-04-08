@@ -5,16 +5,13 @@ dotenv.config();
 
 const db = mysql.createPool({
   connectionLimit: 10,
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'barbearia',
+  host: process.env.DATABASE_HOST || 'localhost',
+  port: process.env.DATABASE_PORT || 3306,
+  user: process.env.DATABASE_USER || 'root',
+  password: process.env.DATABASE_PASSWORD || '',
+  database: process.env.DATABASE_NAME || 'barbearia',
   waitForConnections: true,
-  enableKeepAlive: true,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  enableKeepAlive: true
 });
 
 db.on('error', (err) => {
