@@ -1,0 +1,159 @@
+### ============================================
+### BARBEARIA API - TESTES COMPLETOS
+### ============================================
+### Como usar:
+### 1. Instale a extensão "REST Client" no VS Code
+### 2. Clique em "Send Request" para testar cada endpoint
+### ============================================
+
+### ============================================
+### 1️⃣ AUTENTICAÇÃO (SEM TOKEN)
+### ============================================
+
+### Registrar novo usuário (CLIENTE)
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "João Silva",
+  "email": "joao@test.com",
+  "phone": "11999999999",
+  "password": "123456",
+  "role": "customer"
+}
+
+###
+
+### Registrar novo usuário (BARBEIRO)
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Carlos Barbeiro",
+  "email": "carlos@test.com",
+  "phone": "11988888888",
+  "password": "123456",
+  "role": "barber"
+}
+
+###
+
+### Login - Cliente
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@test.com",
+  "password": "123456"
+}
+
+###
+
+### Login - Barbeiro
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "carlos@test.com",
+  "password": "123456"
+}
+
+### ============================================
+### 2️⃣ SERVIÇOS (Com token - use token do login acima)
+### ============================================
+
+### Listar todos os serviços
+GET http://localhost:5000/api/services
+Authorization: Bearer seu_token_aqui
+
+###
+
+### ============================================
+### 3️⃣ AGENDAMENTOS (Com token)
+### ============================================
+
+### Listar meus agendamentos
+GET http://localhost:5000/api/appointments
+Authorization: Bearer seu_token_aqui
+
+###
+
+### Criar novo agendamento
+POST http://localhost:5000/api/appointments
+Content-Type: application/json
+Authorization: Bearer seu_token_aqui
+
+{
+  "barberId": 1,
+  "serviceId": 1,
+  "appointmentDate": "2026-04-15",
+  "appointmentTime": "10:00"
+}
+
+###
+
+### ============================================
+### 4️⃣ DADOS DO USUÁRIO (Com token)
+### ============================================
+
+### Obter dados do usuário logado
+GET http://localhost:5000/api/user/profile
+Authorization: Bearer seu_token_aqui
+
+###
+
+### Atualizar dados do usuário
+PUT http://localhost:5000/api/user/profile
+Content-Type: application/json
+Authorization: Bearer seu_token_aqui
+
+{
+  "name": "João Silva Atualizado",
+  "phone": "11999999999"
+}
+
+###
+
+### ============================================
+### 5️⃣ PAINEL ADMINISTRATIVO (Com token de admin)
+### ============================================
+
+### Listar todos os usuários (Admin)
+GET http://localhost:5000/api/admin/users
+Authorization: Bearer seu_token_admin_aqui
+
+###
+
+### Listar todos os agendamentos (Admin)
+GET http://localhost:5000/api/admin/appointments
+Authorization: Bearer seu_token_admin_aqui
+
+###
+
+### Gerar relatório (Admin)
+GET http://localhost:5000/api/admin/report
+Authorization: Bearer seu_token_admin_aqui
+
+###
+
+### ============================================
+### 📋 INSTRUÇÕES DE USO
+### ============================================
+
+### 1. Faça login primeiro (endpoint "Login - Cliente")
+### 2. Copie o "token" da resposta
+### 3. Substitua "seu_token_aqui" nos endpoints protegidos
+### 4. Clique em "Send Request" para testar
+
+### Exemplo de resposta de login:
+### {
+###   "success": true,
+###   "message": "Login successful",
+###   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+###   "user": {
+###     "id": 1,
+###     "name": "João Silva",
+###     "email": "joao@test.com",
+###     "role": "customer"
+###   }
+### }
