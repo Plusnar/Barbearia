@@ -36,26 +36,7 @@ Server is running on port 5000
 # Clique em "Run" (▶️)
 ```
 
----
 
-## ⚙️ Variáveis de Ambiente
-
-O arquivo `.env` já está configurado com as credenciais do **TiDB Cloud**:
-
-```env
-# TiDB Cloud Database
-DATABASE_HOST=gateway01.us-east-1.prod.awstidclouddb.com
-DATABASE_PORT=4000
-DATABASE_NAME=barbearia
-DATABASE_USER=3YC71VMTZLLsoRE.root
-DATABASE_PASSWORD=0c2xmx62M22chFCG
-
-# Server
-PORT=5000
-NODE_ENV=production
-```
-
-Não altere essas variáveis. Se necessário atualizar as credenciais, edite o `.env` e reinicie o servidor.
 
 ---
 
