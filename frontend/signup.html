@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Criar Conta - Barbearia</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+    .card { background:#fff; padding:24px 28px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); width:320px; }
+    h1 { margin-top:0; font-size:22px; text-align:center; }
+    label { display:block; margin-top:12px; font-size:14px; }
+    input, select { width:100%; padding:8px; margin-top:4px; box-sizing:border-box; border-radius:4px; border:1px solid #ccc; }
+    button { width:100%; margin-top:16px; padding:10px; border:none; border-radius:4px; background:#43a047; color:#fff; font-weight:bold; cursor:pointer; }
+    button:hover { background:#2e7d32; }
+    .msg { margin-top:12px; font-size:13px; text-align:center; }
+    .link { margin-top:12px; font-size:13px; text-align:center; }
+    .link a { color:#1e88e5; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Criar Conta</h1>
+    <form id="signupForm">
+      <label for="name">Nome</label>
+      <input type="text" id="name" required />
+
+      <label for="email">E-mail</label>
+      <input type="email" id="email" required />
+
+      <label for="password">Senha</label>
+      <input type="password" id="password" required />
+
+      <label for="phone">Telefone</label>
+      <input type="tel" id="phone" placeholder="(11) 99999-9999" required />
+
+      <label for="role">Tipo de usuário</label>
+      <select id="role">
+        <option value="client">Cliente</option>
+        <option value="barber">Barbeiro</option>
+      </select>
+
+      <button type="submit">Cadastrar</button>
+    </form>
+    <div class="msg" id="message"></div>
+    <div class="link">Já tem conta? <a href="login.html">Entrar</a></div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:5000';
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const phone = document.getElementById('phone').value;
+      const role = document.getElementById('role').value === 'barber' ? 'BARBER' : 'CUSTOMER';
+      const msg = document.getElementById('message');
+      msg.textContent = 'Enviando...';
+
+      try {
+        const res = await fetch(API_BASE + '/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, password, role })
+        });
+        const data = await res.json();
+        if (data.success) {
+          msg.style.color = 'green';
+          msg.textContent = 'Conta criada com sucesso!';
+          console.log('Resposta cadastro:', data);
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = data.message || 'Falha ao criar conta';
+        }
+      } catch (err) {
+        console.error(err);
+        msg.style.color = 'red';
+        msg.textContent = 'Erro ao conectar ao servidor.';
+      }
+    });
+  </script>
+</body>
+</html>

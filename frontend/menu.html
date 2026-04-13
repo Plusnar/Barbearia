@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Menu - Barbearia</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; }
+    header { background:#1e88e5; color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; }
+    header h1 { margin:0; font-size:20px; }
+    header .user { font-size:14px; }
+    header button { background:#e53935; border:none; color:#fff; padding:6px 12px; border-radius:4px; cursor:pointer; }
+    main { padding:24px; }
+    h2 { margin-top:0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; }
+    .card { background:#fff; border-radius:8px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+    .card h3 { margin-top:0; margin-bottom:8px; }
+    .role-badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; background:#fff; color:#1e88e5; margin-left:8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Barbearia - Menu<span id="roleBadge" class="role-badge"></span></h1>
+    </div>
+    <div class="user">
+      <span id="userInfo"></span>
+      <button id="logoutBtn">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <h2 id="welcome"></h2>
+
+    <section id="customerMenu" style="display:none;">
+      <h3>Opções do Cliente</h3>
+      <div class="grid">
+        <div class="card">
+          <h3>Marcar horário</h3>
+          <p>Teste criar um agendamento chamando a API de appointments.</p>
+        </div>
+        <div class="card">
+          <h3>Meus agendamentos</h3>
+          <p>Aqui você poderia listar agendamentos do usuário logado.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="barberMenu" style="display:none;">
+      <h3>Opções do Barbeiro</h3>
+      <div class="grid">
+        <div class="card">
+          <h3>Agenda do dia</h3>
+          <p>Ver os agendamentos de hoje para atender clientes.</p>
+        </div>
+        <div class="card">
+          <h3>Gerenciar serviços</h3>
+          <p>Área para testar criação/edição de serviços.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // recuperar usuário do localStorage
+    const rawUser = localStorage.getItem('barbearia_user');
+    const token = localStorage.getItem('barbearia_token');
+
+    if (!rawUser || !token) {
+      // não logado
+      window.location.href = 'login.html';
+    } else {
+      const user = JSON.parse(rawUser);
+      const name = user.name || 'Usuário';
+      const role = user.role || 'CUSTOMER';
+
+      document.getElementById('userInfo').textContent = name + ' (' + user.email + ')';
+      document.getElementById('welcome').textContent = 'Bem-vindo, ' + name + '!';
+
+      const roleBadge = document.getElementById('roleBadge');
+      roleBadge.textContent = ' ' + role;
+
+      // mostrar menus diferentes por perfil
+      if (role === 'BARBER' || role === 'ADMIN') {
+        document.getElementById('barberMenu').style.display = 'block';
+      } else {
+        document.getElementById('customerMenu').style.display = 'block';
+      }
+    }
+
+    // logout simples
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('barbearia_token');
+      localStorage.removeItem('barbearia_user');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>
