@@ -2,8 +2,40 @@ import mysql from 'mysql2';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const envCandidates = [
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(process.cwd(), '../.env'),
+  path.resolve(__dirname, '../../.env'),
+  path.resolve(__dirname, '../../../.env')
+];
+
+const envPath = envCandidates.find((candidate) => fs.existsSync(candidate));
+if (envPath) {
+  dotenv.config({ path: envPath });
+  console.log('📄 Usando arquivo de ambiente:', envPath);
+} else {
+  dotenv.config();
+  console.warn('⚠️  Nenhum .env encontrado nos caminhos esperados.');
+}
+
+const requiredEnv = [
+  'DATABASE_HOST',
+  'DATABASE_PORT',
+  'DATABASE_USER',
+  'DATABASE_PASSWORD',
+  'DATABASE_NAME'
+];
+
+const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error('❌ Variáveis de ambiente ausentes:', missingEnv.join(', '));
+  process.exit(1);
+}
 
 console.log('🔗 Conectando ao TiDB Cloud...');
 console.log('  Host:', process.env.DATABASE_HOST);
@@ -22,7 +54,7 @@ if (fs.existsSync(caPath)) {
 
 const db = mysql.createPool({
   host: process.env.DATABASE_HOST,
-  port: parseInt(process.env.DATABASE_PORT),
+  port: Number(process.env.DATABASE_PORT),
   user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
