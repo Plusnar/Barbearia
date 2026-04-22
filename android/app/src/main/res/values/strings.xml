@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Barbearia</string>
     <string name="login_title">Entrar</string>
@@ -14,9 +14,9 @@
     <string name="new_appointment">Nova Reserva</string>
     <string name="book_appointment">Agendar</string>
     <string name="select_date">Selecionar Data</string>
-    <string name="select_time">Selecionar Horário</string>
+    <string name="select_time">Selecionar HorÃ¡rio</string>
     <string name="select_barber">Escolher Barbeiro</string>
-    <string name="select_service">Escolher Serviço</string>
+    <string name="select_service">Escolher ServiÃ§o</string>
     <string name="no_appointments">Nenhuma reserva agendada</string>
     <string name="appointments">Minhas Reservas</string>
     <string name="admin_panel">Painel do Admin</string>
@@ -26,4 +26,9 @@
     <string name="total_revenue">Receita Total</string>
     <string name="active_barbers">Barbeiros Ativos</string>
     <string name="total_customers">Total de Clientes</string>
+    <string name="user_menu">Menu do usuário</string>
+    <string name="promo_icon">Ícone promoção</string>
+    <string name="service_icon">Ícone serviço</string>
+    <string name="barber_avatar">Avatar do barbeiro</string>
 </resources>
+
