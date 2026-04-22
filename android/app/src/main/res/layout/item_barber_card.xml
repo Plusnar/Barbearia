@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/barber_card_home"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/primary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="12dp">
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_barber_avatar"
+            android:contentDescription="@string/barber_avatar"
+            android:scaleType="centerInside"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/barber_name_home"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="João Silva"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/barber_specialization_home"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cortes Modernos"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:textAlignment="center"
+            android:layout_marginBottom="8dp" />
+
+        <RatingBar
+            android:id="@+id/barber_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:rating="4"
+            android:stepSize="1"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
