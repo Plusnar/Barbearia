@@ -1,4 +1,4 @@
-package com.barbearia.app.ui.auth
+﻿package com.barbearia.app.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,6 +16,7 @@ import com.barbearia.app.data.api.RetrofitClient
 import com.barbearia.app.data.api.SharedPreferencesManager
 import com.barbearia.app.ui.admin.AdminPanelActivity
 import com.barbearia.app.ui.barber.BarberDashboardActivity
+import com.barbearia.app.ui.customer.CustomerHomeActivity
 import com.barbearia.app.ui.customer.MainActivity
 import kotlinx.coroutines.launch
 
@@ -93,7 +94,7 @@ class LoginActivity : AppCompatActivity() {
         val intent = when (role) {
             "ADMIN" -> Intent(this, AdminPanelActivity::class.java)
             "BARBER" -> Intent(this, BarberDashboardActivity::class.java)
-            else -> Intent(this, MainActivity::class.java)
+            else -> Intent(this, CustomerHomeActivity::class.java)
         }
         startActivity(intent)
         finish()
@@ -103,3 +104,4 @@ class LoginActivity : AppCompatActivity() {
         startActivity(Intent(this, RegisterActivity::class.java))
     }
 }
+
