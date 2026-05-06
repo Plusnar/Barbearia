@@ -2,58 +2,70 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import db from '../config/database.js';
 import dotenv from 'dotenv';
+import db from '../config/database.js';
+import { validateEmail, validatePassword, validatePhone } from '../utils/validation.js';
 
 dotenv.config();
 
 const router = express.Router();
 
 router.post('/register', (req, res) => {
-  const { name, email, phone, password, role } = req.body;
-
-  console.log('📝 Register attempt:', { name, email, phone, role });
+  const name = req.body.name?.trim();
+  const email = req.body.email?.trim().toLowerCase();
+  const phone = req.body.phone?.trim();
+  const password = req.body.password;
+  const role = ['CUSTOMER', 'BARBER', 'ADMIN'].includes(req.body.role) ? req.body.role : 'CUSTOMER';
 
   if (!name || !email || !phone || !password) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
-  db.query('SELECT id FROM users WHERE email = ?', [email], (err, results) => {
-    if (err) {
-      console.error('❌ Database error (SELECT):', err);
+  if (!validateEmail(email)) {
+    return res.status(400).json({ success: false, message: 'Invalid email format' });
+  }
+
+  if (!validatePhone(phone)) {
+    return res.status(400).json({ success: false, message: 'Invalid phone number' });
+  }
+
+  if (!validatePassword(password)) {
+    return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+  }
+
+  db.query('SELECT id FROM users WHERE email = ?', [email], (selectError, results) => {
+    if (selectError) {
       return res.status(500).json({ success: false, message: 'Database error' });
     }
+
     if (results.length > 0) {
       return res.status(400).json({ success: false, message: 'Email already exists' });
     }
 
     const userId = uuidv4();
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const userRole = role || 'CUSTOMER';
-
-    console.log('💾 Inserting user:', userId);
 
     db.query(
       'INSERT INTO users (id, name, email, phone, password, role) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, name, email, phone, hashedPassword, userRole],
-      (err) => {
-        if (err) {
-          console.error('❌ Database error (INSERT):', err);
+      [userId, name, email, phone, hashedPassword, role],
+      (insertError) => {
+        if (insertError) {
           return res.status(500).json({ success: false, message: 'Database error' });
         }
 
-        console.log('✅ User registered successfully:', userId);
-
-        const token = jwt.sign(
-          { userId, role: userRole },
-          process.env.JWT_SECRET,
-          { expiresIn: '30d' }
-        );
+        const token = jwt.sign({ userId, role }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
         res.json({
           success: true,
           token,
-          user: { id: userId, name, email, phone, role: userRole, createdAt: Date.now() }
+          user: {
+            id: userId,
+            name,
+            email,
+            phone,
+            role,
+            createdAt: Date.now()
+          }
         });
       }
     );
@@ -61,14 +73,15 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  const { email, password } = req.body;
+  const email = req.body.email?.trim().toLowerCase();
+  const password = req.body.password;
 
   if (!email || !password) {
     return res.status(400).json({ success: false, message: 'Email and password required' });
   }
 
-  db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-    if (err) {
+  db.query('SELECT * FROM users WHERE email = ?', [email], (queryError, results) => {
+    if (queryError) {
       return res.status(500).json({ success: false, message: 'Database error' });
     }
 

@@ -2,153 +2,131 @@ package com.barbearia.app.ui.customer
 
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.Spinner
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.barbearia.app.BarbeariaApplication
 import com.barbearia.app.R
-import com.barbearia.app.data.api.ApiService
-import com.barbearia.app.data.api.BookAppointmentRequest
-import com.barbearia.app.data.api.RetrofitClient
-import com.barbearia.app.data.model.Barber
-import com.barbearia.app.data.model.Service
+import com.barbearia.app.databinding.ActivityAppointmentBookingBinding
 import com.barbearia.app.ui.adapter.BarberAdapter
 import com.barbearia.app.ui.adapter.ServiceAdapter
+import com.barbearia.app.ui.common.UiState
+import com.barbearia.app.ui.common.ViewModelFactory
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlinx.coroutines.launch
 
 class AppointmentBookingActivity : AppCompatActivity() {
-    private lateinit var dateButton: Button
-    private lateinit var timeSpinner: Spinner
-    private lateinit var barberRecycler: RecyclerView
-    private lateinit var serviceRecycler: RecyclerView
-    private lateinit var bookButton: Button
-    private lateinit var progressBar: ProgressBar
-    private lateinit var apiService: ApiService
+    private lateinit var binding: ActivityAppointmentBookingBinding
+
+    private val serviceAdapter = ServiceAdapter(selectable = true)
+    private val barberAdapter = BarberAdapter(selectable = true)
+
+    private val viewModel: AppointmentBookingViewModel by viewModels {
+        ViewModelFactory((application as BarbeariaApplication).repository)
+    }
 
     private var selectedDate: String = ""
-    private var selectedTime: String = ""
-    private var selectedBarberId: String = ""
-    private var selectedServiceId: String = ""
-
-    private lateinit var barberAdapter: BarberAdapter
-    private lateinit var serviceAdapter: ServiceAdapter
+    private val timeOptions = listOf(
+        "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+        "12:00", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_appointment_booking)
+        binding = ActivityAppointmentBookingBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        RetrofitClient.initialize(this)
-        apiService = RetrofitClient.getApiService()
-
-        dateButton = findViewById(R.id.date_button)
-        timeSpinner = findViewById(R.id.time_spinner)
-        barberRecycler = findViewById(R.id.barber_recycler)
-        serviceRecycler = findViewById(R.id.service_recycler)
-        bookButton = findViewById(R.id.book_button)
-        progressBar = findViewById(R.id.progress_bar)
-
-        barberRecycler.layoutManager = GridLayoutManager(this, 2)
-        serviceRecycler.layoutManager = GridLayoutManager(this, 1)
-
-        barberAdapter = BarberAdapter { barberId -> selectedBarberId = barberId }
-        serviceAdapter = ServiceAdapter { serviceId -> selectedServiceId = serviceId }
-
-        barberRecycler.adapter = barberAdapter
-        serviceRecycler.adapter = serviceAdapter
-
-        setupTimeSpinner()
+        setupToolbar()
+        setupSpinner()
+        setupRecyclerViews()
         setupDatePicker()
-        setupBookButton()
-        loadData()
+        observeState()
+        binding.confirmBookingButton.setOnClickListener { confirmBooking() }
+        viewModel.loadForm()
+    }
+
+    private fun setupToolbar() {
+        binding.backButton.setOnClickListener {
+            finish()
+            overridePendingTransition(R.anim.screen_enter_left, R.anim.screen_exit_right)
+        }
+    }
+
+    private fun setupSpinner() {
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, timeOptions)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.timeSpinner.adapter = adapter
+    }
+
+    private fun setupRecyclerViews() {
+        binding.servicesRecycler.apply {
+            layoutManager = LinearLayoutManager(this@AppointmentBookingActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = serviceAdapter
+        }
+        binding.barbersRecycler.apply {
+            layoutManager = LinearLayoutManager(this@AppointmentBookingActivity)
+            adapter = barberAdapter
+        }
     }
 
     private fun setupDatePicker() {
-        dateButton.setOnClickListener {
-            val datePicker = MaterialDatePicker.Builder.datePicker().build()
-            datePicker.addOnPositiveButtonClickListener { selection ->
-                val instant = Instant.ofEpochMilli(selection)
-                val date = instant.atZone(ZoneId.systemDefault()).toLocalDate()
+        binding.dateField.setOnClickListener {
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Escolha a melhor data")
+                .build()
+            datePicker.addOnPositiveButtonClickListener { millis ->
+                val date = Instant.ofEpochMilli(millis)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate()
                 selectedDate = date.format(DateTimeFormatter.ISO_DATE)
-                dateButton.text = selectedDate
+                binding.dateField.setText(date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
             }
-            datePicker.show(supportFragmentManager, "DATE_PICKER")
+            datePicker.show(supportFragmentManager, "BOOKING_DATE")
         }
     }
 
-    private fun setupTimeSpinner() {
-        val times = arrayOf(
-            "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-            "12:00", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"
+    private fun observeState() {
+        viewModel.formState.observe(this) { state ->
+            binding.formProgressBar.visibility = if (state is UiState.Loading) android.view.View.VISIBLE else android.view.View.GONE
+            when (state) {
+                is UiState.Error -> Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
+                is UiState.Success -> {
+                    serviceAdapter.submitList(state.data.services)
+                    barberAdapter.submitList(state.data.barbers)
+                }
+
+                UiState.Idle, UiState.Loading -> Unit
+            }
+        }
+
+        viewModel.bookingState.observe(this) { state ->
+            val isLoading = state is UiState.Loading
+            binding.confirmBookingButton.isEnabled = !isLoading
+            binding.bookingProgressBar.visibility = if (isLoading) android.view.View.VISIBLE else android.view.View.GONE
+
+            when (state) {
+                is UiState.Error -> Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
+                is UiState.Success -> {
+                    Toast.makeText(this, "Agendamento confirmado com sucesso.", Toast.LENGTH_SHORT).show()
+                    finish()
+                    overridePendingTransition(R.anim.screen_enter_left, R.anim.screen_exit_right)
+                }
+
+                UiState.Idle, UiState.Loading -> Unit
+            }
+        }
+    }
+
+    private fun confirmBooking() {
+        viewModel.book(
+            barberId = barberAdapter.getSelectedBarberId(),
+            serviceId = serviceAdapter.getSelectedServiceId(),
+            date = selectedDate,
+            time = timeOptions[binding.timeSpinner.selectedItemPosition],
+            notes = binding.notesInput.text?.toString().orEmpty()
         )
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, times)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        timeSpinner.adapter = adapter
-        timeSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                selectedTime = times[position]
-            }
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
-        }
-    }
-
-    private fun setupBookButton() {
-        bookButton.setOnClickListener {
-            if (selectedDate.isEmpty() || selectedTime.isEmpty() || selectedBarberId.isEmpty() || selectedServiceId.isEmpty()) {
-                Toast.makeText(this, "Please select all options", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            progressBar.visibility = android.view.View.VISIBLE
-            bookButton.isEnabled = false
-
-            lifecycleScope.launch {
-                try {
-                    val response = apiService.bookAppointment(
-                        BookAppointmentRequest(selectedBarberId, selectedServiceId, selectedDate, selectedTime)
-                    )
-                    if (response.isSuccessful) {
-                        Toast.makeText(this@AppointmentBookingActivity, "Appointment booked successfully!", Toast.LENGTH_SHORT).show()
-                        finish()
-                    } else {
-                        Toast.makeText(this@AppointmentBookingActivity, "Booking failed", Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    Toast.makeText(this@AppointmentBookingActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                } finally {
-                    progressBar.visibility = android.view.View.GONE
-                    bookButton.isEnabled = true
-                }
-            }
-        }
-    }
-
-    private fun loadData() {
-        progressBar.visibility = android.view.View.VISIBLE
-        lifecycleScope.launch {
-            try {
-                val barbersResponse = apiService.getBarbers()
-                val servicesResponse = apiService.getServices()
-
-                if (barbersResponse.isSuccessful && servicesResponse.isSuccessful) {
-                    val barbers = barbersResponse.body() ?: emptyList()
-                    val services = servicesResponse.body() ?: emptyList()
-                    barberAdapter.submitList(barbers)
-                    serviceAdapter.submitList(services)
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this@AppointmentBookingActivity, "Error loading data: ${e.message}", Toast.LENGTH_SHORT).show()
-            } finally {
-                progressBar.visibility = android.view.View.GONE
-            }
-        }
     }
 }

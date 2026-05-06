@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import db from './config/database.js';
 import authRoutes from './routes/auth.js';
 import appointmentRoutes from './routes/appointments.js';
@@ -11,11 +14,23 @@ import { authMiddleware } from './middleware/auth.js';
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
+const frontendCandidates = [
+  path.resolve(process.cwd(), 'frontend'),
+  path.resolve(process.cwd(), '../frontend'),
+  path.resolve(__dirname, '../../frontend')
+];
+const frontendPath = frontendCandidates.find((candidate) => fs.existsSync(candidate));
 
 app.use(cors());
 app.use(express.json());
+
+if (frontendPath) {
+  app.use(express.static(frontendPath));
+}
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', authMiddleware, userRoutes);

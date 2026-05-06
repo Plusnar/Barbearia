@@ -1,6 +1,8 @@
 # Backend
 backend/node_modules/
 backend/npm-debug.log*
+backend-api*.log
+backend-server*.log
 backend/.env
 backend/.env.local
 backend/.env.*.local
@@ -8,6 +10,8 @@ backend/dist/
 backend/build/
 
 # Android
+.gradle/
+build/
 android/.gradle/
 android/local.properties
 android/.idea/
@@ -16,6 +20,7 @@ android/*.apk
 android/*.ap_
 android/*.aab
 android/build/
+android/app/build/
 android/.DS_Store
 android/.externalNativeBuild
 android/.cxx/

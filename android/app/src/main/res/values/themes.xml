@@ -1,19 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Barbearia" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primary_dark</item>
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="colorSecondaryVariant">@color/secondary_dark</item>
-        <item name="colorError">@color/error</item>
+    <style name="Theme.Barbearia" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/black_rich</item>
+        <item name="colorPrimaryVariant">@color/black_soft</item>
+        <item name="colorSecondary">@color/gold_primary</item>
+        <item name="colorSecondaryVariant">@color/gold_dark</item>
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="android:colorBackground">@color/cream</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="colorOnError">@color/white</item>
-        <item name="android:fontFamily">@font/roboto</item>
+        <item name="colorOnSecondary">@color/black_rich</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:statusBarColor">@color/black_rich</item>
+        <item name="android:windowBackground">@color/cream</item>
     </style>
 
-    <style name="Widget.Button" parent="Widget.MaterialComponents.Button">
-        <item name="cornerRadius">8dp</item>
-        <item name="android:textSize">16sp</item>
+    <style name="Widget.Barbearia.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">20dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="backgroundTint">@color/gold_primary</item>
+        <item name="android:textColor">@color/black_rich</item>
+        <item name="iconTint">@color/black_rich</item>
+        <item name="rippleColor">@color/gold_light</item>
+    </style>
+
+    <style name="Widget.Barbearia.Button.Secondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="cornerRadius">20dp</item>
+        <item name="strokeColor">@color/stroke_soft</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Widget.Barbearia.TextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/stroke_soft</item>
+        <item name="boxBackgroundColor">@color/surface_light</item>
+        <item name="hintTextColor">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
     </style>
 </resources>

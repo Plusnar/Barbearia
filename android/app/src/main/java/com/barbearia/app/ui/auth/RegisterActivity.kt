@@ -2,104 +2,112 @@ package com.barbearia.app.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import com.barbearia.app.BarbeariaApplication
 import com.barbearia.app.R
-import com.barbearia.app.data.api.ApiService
-import com.barbearia.app.data.api.RegisterRequest
-import com.barbearia.app.data.api.RetrofitClient
-import com.barbearia.app.data.api.SharedPreferencesManager
+import com.barbearia.app.databinding.ActivityRegisterBinding
+import com.barbearia.app.ui.common.UiState
+import com.barbearia.app.ui.common.ViewModelFactory
 import com.barbearia.app.ui.customer.MainActivity
-import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
-    private lateinit var nameInput: EditText
-    private lateinit var emailInput: EditText
-    private lateinit var phoneInput: EditText
-    private lateinit var passwordInput: EditText
-    private lateinit var confirmPasswordInput: EditText
-    private lateinit var registerButton: Button
-    private lateinit var loginLink: TextView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var apiService: ApiService
-    private lateinit var sharedPrefsManager: SharedPreferencesManager
+    private lateinit var binding: ActivityRegisterBinding
+
+    private val viewModel: RegisterViewModel by viewModels {
+        ViewModelFactory((application as BarbeariaApplication).repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register)
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        RetrofitClient.initialize(this)
-        sharedPrefsManager = SharedPreferencesManager(this)
-        apiService = RetrofitClient.getApiService()
-
-        nameInput = findViewById(R.id.name_input)
-        emailInput = findViewById(R.id.email_input)
-        phoneInput = findViewById(R.id.phone_input)
-        passwordInput = findViewById(R.id.password_input)
-        confirmPasswordInput = findViewById(R.id.confirm_password_input)
-        registerButton = findViewById(R.id.register_button)
-        loginLink = findViewById(R.id.login_link)
-        progressBar = findViewById(R.id.progress_bar)
-
-        registerButton.setOnClickListener { handleRegister() }
-        loginLink.setOnClickListener { finish() }
+        setupListeners()
+        playIntroAnimation()
+        observeState()
     }
 
-    private fun handleRegister() {
-        val name = nameInput.text.toString().trim()
-        val email = emailInput.text.toString().trim()
-        val phone = phoneInput.text.toString().trim()
-        val password = passwordInput.text.toString().trim()
-        val confirmPassword = confirmPasswordInput.text.toString().trim()
-
-        if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
-            return
+    private fun setupListeners() {
+        binding.registerButton.setOnClickListener {
+            clearErrors()
+            viewModel.register(
+                name = binding.nameInput.text?.toString().orEmpty(),
+                email = binding.emailInput.text?.toString().orEmpty(),
+                phone = binding.phoneInput.text?.toString().orEmpty(),
+                password = binding.passwordInput.text?.toString().orEmpty(),
+                confirmPassword = binding.confirmPasswordInput.text?.toString().orEmpty()
+            )
         }
 
-        if (password != confirmPassword) {
-            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
-            return
+        binding.loginLink.setOnClickListener {
+            finish()
+            overridePendingTransition(R.anim.screen_enter_left, R.anim.screen_exit_right)
         }
+    }
 
-        if (password.length < 6) {
-            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
-            return
-        }
+    private fun playIntroAnimation() {
+        binding.logoContainer.scaleX = 0.86f
+        binding.logoContainer.scaleY = 0.86f
+        binding.logoContainer.alpha = 0f
+        binding.logoContainer.animate()
+            .alpha(1f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(420L)
+            .start()
 
-        progressBar.visibility = android.view.View.VISIBLE
-        registerButton.isEnabled = false
-
-        lifecycleScope.launch {
-            try {
-                val response = apiService.registerUser(
-                    RegisterRequest(name, email, phone, password)
-                )
-                if (response.isSuccessful && response.body() != null) {
-                    val authResponse = response.body()!!
-                    sharedPrefsManager.saveToken(authResponse.token)
-                    sharedPrefsManager.saveUser(
-                        authResponse.user.id,
-                        authResponse.user.name,
-                        authResponse.user.email,
-                        authResponse.user.role.name
-                    )
-                    startActivity(Intent(this@RegisterActivity, MainActivity::class.java))
-                    finish()
-                } else {
-                    Toast.makeText(this@RegisterActivity, "Registration failed", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this@RegisterActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            } finally {
-                progressBar.visibility = android.view.View.GONE
-                registerButton.isEnabled = true
+        binding.registerButton.setOnTouchListener { view, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN -> view.animate().scaleX(0.98f).scaleY(0.98f).setDuration(90L).start()
+                android.view.MotionEvent.ACTION_UP,
+                android.view.MotionEvent.ACTION_CANCEL -> view.animate().scaleX(1f).scaleY(1f).setDuration(120L).start()
             }
+            false
+        }
+    }
+
+    private fun observeState() {
+        viewModel.uiState.observe(this) { state ->
+            val isLoading = state is UiState.Loading
+            binding.registerButton.isEnabled = !isLoading
+            binding.progressBar.visibility = if (isLoading) android.view.View.VISIBLE else android.view.View.GONE
+
+            when (state) {
+                is UiState.Error -> handleError(state.message)
+                is UiState.Success -> {
+                    Toast.makeText(this, "Conta criada com sucesso.", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, MainActivity::class.java))
+                    overridePendingTransition(R.anim.screen_enter_right, R.anim.screen_exit_left)
+                    finish()
+                }
+
+                UiState.Idle, UiState.Loading -> Unit
+            }
+        }
+    }
+
+    private fun clearErrors() {
+        binding.nameInput.error = null
+        binding.emailInput.error = null
+        binding.phoneInput.error = null
+        binding.passwordInput.error = null
+        binding.confirmPasswordInput.error = null
+    }
+
+    private fun handleError(message: String) {
+        when {
+            message.contains("nome", ignoreCase = true) -> binding.nameInput.error = message
+            message.contains("e-mail", ignoreCase = true) -> binding.emailInput.error = message
+            message.contains("email", ignoreCase = true) -> binding.emailInput.error = message
+            message.contains("telefone", ignoreCase = true) -> binding.phoneInput.error = message
+            message.contains("senha", ignoreCase = true) -> {
+                binding.passwordInput.error = message
+                binding.confirmPasswordInput.error = message
+            }
+
+            else -> Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         }
     }
 }

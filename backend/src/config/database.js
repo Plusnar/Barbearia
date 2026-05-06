@@ -42,14 +42,27 @@ console.log('  Host:', process.env.DATABASE_HOST);
 console.log('  Port:', process.env.DATABASE_PORT);
 
 // Carregar certificado CA
-const caPath = path.resolve(process.env.DATABASE_CA_PATH || './ca.pem');
-let caCert = null;
+const caPaths = [
+  process.env.DATABASE_CA_PATH,
+  path.resolve(__dirname, '../../ca.pem'),
+  path.resolve(process.cwd(), 'ca.pem'),
+  path.resolve(process.cwd(), 'backend/ca.pem'),
+].filter(Boolean);
 
-if (fs.existsSync(caPath)) {
-  caCert = fs.readFileSync(caPath, 'utf8');
-  console.log('✅ Certificado CA carregado');
-} else {
-  console.warn('⚠️  CA.pem não encontrado em:', caPath);
+let caCert = null;
+let caPathUsed = null;
+
+for (const caPath of caPaths) {
+  if (fs.existsSync(caPath)) {
+    caCert = fs.readFileSync(caPath, 'utf8');
+    caPathUsed = caPath;
+    console.log('✅ Certificado CA carregado de:', caPath);
+    break;
+  }
+}
+
+if (!caCert) {
+  console.warn('⚠️  CA.pem não encontrado. Tentando sem certificado...');
 }
 
 const db = mysql.createPool({
@@ -58,16 +71,20 @@ const db = mysql.createPool({
   user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  ssl: caCert ? { ca: [caCert] } : 'Amazon RDS',
+  ssl: caCert
+    ? { ca: [caCert], rejectUnauthorized: true }
+    : { rejectUnauthorized: false },
   waitForConnections: true,
   connectionLimit: 3,
   queueLimit: 0,
-  enableKeepAlive: true
+  enableKeepAlive: true,
+  connectTimeout: 10000
 });
 
 db.getConnection((err, connection) => {
   if (err) {
     console.error('❌ Erro na conexão:', err.message);
+    console.error('Detalhes:', err);
     process.exit(1);
   }
   connection.release();

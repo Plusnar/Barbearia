@@ -4,25 +4,12 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class User(
+data class SessionUser(
     val id: String,
     val name: String,
     val email: String,
     val phone: String,
-    val role: UserRole,
-    val createdAt: Long
-) : Parcelable
-
-enum class UserRole {
-    CUSTOMER,
-    BARBER,
-    ADMIN
-}
-
-@Parcelize
-data class AuthResponse(
-    val token: String,
-    val user: User
+    val role: String
 ) : Parcelable
 
 @Parcelize
@@ -52,28 +39,63 @@ data class Appointment(
     val serviceId: String,
     val barberName: String,
     val serviceName: String,
+    val customerName: String? = null,
+    val price: Double? = null,
     val date: String,
     val time: String,
     val status: AppointmentStatus,
-    val createdAt: Long
+    val createdAt: Long? = null
 ) : Parcelable
 
 enum class AppointmentStatus {
     PENDING,
     CONFIRMED,
     COMPLETED,
-    CANCELLED
+    CANCELLED;
+
+    companion object {
+        fun fromValue(raw: String?): AppointmentStatus {
+            return values().firstOrNull { it.name.equals(raw, ignoreCase = true) } ?: PENDING
+        }
+    }
 }
 
 @Parcelize
-data class AvailableSlot(
-    val date: String,
-    val time: String,
-    val availableBarbers: List<Barber>
+data class AdminStatistics(
+    val totalAppointments: Int,
+    val completedAppointments: Int,
+    val totalRevenue: Double,
+    val activeBarbers: Int,
+    val totalCustomers: Int,
+    val servicesPerformed: Int
 ) : Parcelable
 
 @Parcelize
-data class ErrorResponse(
-    val success: Boolean,
-    val message: String
+data class Plan(
+    val id: String,
+    val name: String,
+    val price: Double,
+    val description: String,
+    val features: List<String>,
+    val recommended: Boolean = false
+) : Parcelable
+
+@Parcelize
+data class BarberProfit(
+    val barberId: String,
+    val barberName: String,
+    val servicesPerformed: Int,
+    val grossRevenue: Double,
+    val barberShare: Double,
+    val houseShare: Double,
+    val commissionPercentage: Int
+) : Parcelable
+
+@Parcelize
+data class ProfitDistribution(
+    val commissionPercentage: Int,
+    val totalGrossRevenue: Double,
+    val totalBarberShare: Double,
+    val totalHouseShare: Double,
+    val barbers: List<BarberProfit>
 ) : Parcelable

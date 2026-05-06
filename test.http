@@ -15,8 +15,8 @@ POST http://localhost:5000/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "João Silva",
-  "email": "joao@test.com",
+  "name": "João Silvajjjj",
+  "email": "jokjjjao@test.com",
   "phone": "11999999999",
   "password": "123456",
   "role": "customer"

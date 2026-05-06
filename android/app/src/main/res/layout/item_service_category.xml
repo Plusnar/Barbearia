@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/service_card_category"
@@ -19,7 +19,7 @@
         <ImageView
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_scissor"
+            android:src="@drawable/ic_scissors"
             android:contentDescription="@string/service_icon"
             android:scaleType="centerInside"
             android:layout_marginBottom="8dp" />

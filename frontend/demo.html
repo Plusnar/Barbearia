@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo App - Barbearia</title>
+  <style>
+    :root {
+      --ink: #161412;
+      --panel: #fffaf1;
+      --muted: #786b5e;
+      --line: #e5d5bb;
+      --gold: #c89b3c;
+      --gold-dark: #8e6727;
+      --danger: #a63d40;
+      --ok: #2e7d32;
+      --blue: #2f5c8f;
+      --bg: #1f1f1f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1f1f1f, #2d2d2d);
+      color: var(--ink);
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) minmax(360px, 1fr);
+      min-height: 100vh;
+    }
+
+    .phone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .device {
+      width: min(100%, 390px);
+      min-height: 720px;
+      background: var(--panel);
+      border: 10px solid #111;
+      border-radius: 28px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.38);
+      overflow: hidden;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1f1f1f, #2d2d2d);
+      color: #fff;
+      padding: 28px 24px 30px;
+    }
+
+    .logo {
+      width: 72px;
+      height: 72px;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      margin: 0 0 8px;
+      line-height: 1.05;
+    }
+
+    .hero p {
+      color: #d8c7a9;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .phone-body {
+      padding: 22px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 18px;
+      background: #f3ece0;
+      padding: 5px;
+      border-radius: 10px;
+    }
+
+    .tab {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .tab.active {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f7f1e8;
+      color: var(--ink);
+      padding: 12px;
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    .primary {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, var(--gold), #ff9800);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .secondary {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffaf1;
+      color: var(--ink);
+      padding: 9px 12px;
+      font-weight: 700;
+    }
+
+    .danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .status {
+      min-height: 22px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status.ok { color: var(--ok); }
+    .status.error { color: var(--danger); }
+
+    .workspace {
+      padding: 28px;
+      background: #f6efe4;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .topbar h2 {
+      margin: 0 0 6px;
+      font-size: 28px;
+    }
+
+    .topbar p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fffaf1;
+      color: var(--muted);
+      padding: 7px 11px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--ok);
+      border-radius: 50%;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: #fffaf1;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 8px 22px rgba(64, 44, 18, 0.05);
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-7 { grid-column: span 7; }
+    .span-12 { grid-column: span 12; }
+
+    .card h3 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    .metric {
+      font-size: 28px;
+      font-weight: 850;
+      margin: 4px 0 0;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .item small {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 920px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .phone {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+      }
+
+      .device {
+        min-height: auto;
+      }
+
+      .workspace {
+        padding: 18px;
+      }
+
+      .topbar {
+        flex-direction: column;
+      }
+
+      .span-4,
+      .span-5,
+      .span-7,
+      .span-12 {
+        grid-column: span 12;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="phone">
+      <div class="device">
+        <div class="hero">
+          <div class="logo">B</div>
+          <h1>Barbearia Castilho</h1>
+          <p>Simulação web conectada ao banco de dados online.</p>
+        </div>
+
+        <div id="authPanel" class="phone-body">
+          <div class="tabs">
+            <button id="loginTab" class="tab active" type="button">Entrar</button>
+            <button id="registerTab" class="tab" type="button">Criar conta</button>
+          </div>
+
+          <form id="loginForm">
+            <div class="field">
+              <label for="loginEmail">E-mail</label>
+              <input id="loginEmail" type="email" autocomplete="email" value="admin@barbearia.com" required />
+            </div>
+            <div class="field">
+              <label for="loginPassword">Senha</label>
+              <input id="loginPassword" type="password" autocomplete="current-password" required />
+            </div>
+            <button class="primary" type="submit">Entrar agora</button>
+          </form>
+
+          <form id="registerForm" class="hidden">
+            <div class="field">
+              <label for="registerName">Nome completo</label>
+              <input id="registerName" type="text" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="registerEmail">E-mail</label>
+              <input id="registerEmail" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="registerPhone">Telefone</label>
+              <input id="registerPhone" type="tel" placeholder="(11) 99999-9999" required />
+            </div>
+            <div class="field">
+              <label for="registerPassword">Senha</label>
+              <input id="registerPassword" type="password" autocomplete="new-password" required />
+            </div>
+            <div class="field">
+              <label for="registerRole">Perfil para a demonstração</label>
+              <select id="registerRole">
+                <option value="CUSTOMER">Cliente</option>
+                <option value="BARBER">Barbeiro</option>
+                <option value="ADMIN">Administrador</option>
+              </select>
+            </div>
+            <button class="primary" type="submit">Criar conta</button>
+          </form>
+
+          <div id="authStatus" class="status">API local: http://localhost:5000</div>
+        </div>
+
+        <div id="sessionPanel" class="phone-body hidden">
+          <div class="list">
+            <div class="item">
+              <strong id="sessionName">Usuário</strong>
+              <small id="sessionInfo"></small>
+            </div>
+            <button id="refreshBtn" class="primary" type="button">Atualizar dados</button>
+            <button id="logoutBtn" class="secondary danger" type="button">Sair</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="topbar">
+        <div>
+          <h2>Demonstração no Chrome</h2>
+          <p>As ações abaixo chamam a API do projeto e gravam ou leem dados do TiDB Cloud.</p>
+        </div>
+        <span class="chip"><span class="dot"></span><span id="connectionLabel">Aguardando login</span></span>
+      </div>
+
+      <div id="guestState" class="card span-12">
+        <h3>Roteiro rápido</h3>
+        <div class="list">
+          <div class="item"><strong>1. Inicie o backend</strong><small>Execute a API na porta 5000 para conectar no banco online configurado no `.env`.</small></div>
+          <div class="item"><strong>2. Entre ou crie uma conta</strong><small>Use o painel com aparência de app à esquerda.</small></div>
+          <div class="item"><strong>3. Demonstre os fluxos</strong><small>Cliente agenda horário, barbeiro atualiza status e administrador visualiza métricas.</small></div>
+        </div>
+      </div>
+
+      <div id="appState" class="hidden">
+        <div id="customerView" class="grid hidden">
+          <section class="card span-5">
+            <h3>Novo agendamento</h3>
+            <form id="bookingForm">
+              <div class="field">
+                <label for="serviceSelect">Serviço</label>
+                <select id="serviceSelect" required></select>
+              </div>
+              <div class="field">
+                <label for="barberSelect">Barbeiro</label>
+                <select id="barberSelect" required></select>
+              </div>
+              <div class="field">
+                <label for="dateInput">Data</label>
+                <input id="dateInput" type="date" required />
+              </div>
+              <div class="field">
+                <label for="timeSelect">Horário</label>
+                <select id="timeSelect" required></select>
+              </div>
+              <div class="field">
+                <label for="notesInput">Observações</label>
+                <textarea id="notesInput" placeholder="Ex.: corte com barba"></textarea>
+              </div>
+              <button class="primary" type="submit">Confirmar agendamento</button>
+            </form>
+            <div id="bookingStatus" class="status"></div>
+          </section>
+
+          <section class="card span-7">
+            <h3>Meus agendamentos</h3>
+            <div id="customerAppointments" class="list"></div>
+          </section>
+        </div>
+
+        <div id="barberView" class="grid hidden">
+          <section class="card span-12">
+            <h3>Agenda do barbeiro</h3>
+            <div id="barberAppointments" class="list"></div>
+          </section>
+        </div>
+
+        <div id="adminView" class="grid hidden">
+          <section class="card span-4"><h3>Agendamentos</h3><div id="metricAppointments" class="metric">0</div></section>
+          <section class="card span-4"><h3>Receita concluída</h3><div id="metricRevenue" class="metric">R$ 0,00</div></section>
+          <section class="card span-4"><h3>Clientes</h3><div id="metricCustomers" class="metric">0</div></section>
+          <section class="card span-5">
+            <h3>Distribuição de lucro</h3>
+            <div class="field">
+              <label for="commissionInput">Comissão do barbeiro (%)</label>
+              <input id="commissionInput" type="number" min="0" max="100" value="50" />
+            </div>
+            <button id="loadProfitBtn" class="primary" type="button">Calcular</button>
+            <div id="profitList" class="list" style="margin-top: 14px;"></div>
+          </section>
+          <section class="card span-7">
+            <h3>Todos os agendamentos</h3>
+            <div id="adminAppointments" class="list"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = location.port === '5000' ? '' : 'http://localhost:5000';
+    const tokenKey = 'barbearia_token';
+    const userKey = 'barbearia_user';
+    const times = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'];
+
+    let token = localStorage.getItem(tokenKey);
+    let user = readUser();
+
+    const $ = (id) => document.getElementById(id);
+
+    function readUser() {
+      try {
+        return JSON.parse(localStorage.getItem(userKey));
+      } catch {
+        return null;
+      }
+    }
+
+    function setStatus(target, message, type = '') {
+      target.textContent = message;
+      target.className = `status ${type}`.trim();
+    }
+
+    function money(value) {
+      return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function shortDate(value) {
+      if (!value) return '-';
+      const raw = String(value).slice(0, 10);
+      const [year, month, day] = raw.split('-');
+      return day && month && year ? `${day}/${month}/${year}` : raw;
+    }
+
+    async function api(path, options = {}) {
+      const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
+      const text = await response.text();
+      const body = text ? JSON.parse(text) : null;
+      if (!response.ok) {
+        throw new Error(body?.message || `Erro ${response.status}`);
+      }
+      return body;
+    }
+
+    function switchAuth(mode) {
+      const isLogin = mode === 'login';
+      $('loginTab').classList.toggle('active', isLogin);
+      $('registerTab').classList.toggle('active', !isLogin);
+      $('loginForm').classList.toggle('hidden', !isLogin);
+      $('registerForm').classList.toggle('hidden', isLogin);
+      setStatus($('authStatus'), `API configurada: ${API_BASE || location.origin}`);
+    }
+
+    function renderSession() {
+      const logged = Boolean(token && user);
+      $('authPanel').classList.toggle('hidden', logged);
+      $('sessionPanel').classList.toggle('hidden', !logged);
+      $('guestState').classList.toggle('hidden', logged);
+      $('appState').classList.toggle('hidden', !logged);
+      $('connectionLabel').textContent = logged ? 'Banco online conectado' : 'Aguardando login';
+
+      if (!logged) return;
+
+      $('sessionName').textContent = user.name || 'Usuário';
+      $('sessionInfo').textContent = `${user.email || ''} • ${user.role || 'CUSTOMER'}`;
+      renderRoleViews();
+      loadDashboard();
+    }
+
+    function renderRoleViews() {
+      const role = String(user?.role || 'CUSTOMER').toUpperCase();
+      $('customerView').classList.toggle('hidden', role !== 'CUSTOMER');
+      $('barberView').classList.toggle('hidden', role !== 'BARBER');
+      $('adminView').classList.toggle('hidden', role !== 'ADMIN');
+    }
+
+    async function loadDashboard() {
+      const role = String(user?.role || 'CUSTOMER').toUpperCase();
+      if (role === 'CUSTOMER') await loadCustomer();
+      if (role === 'BARBER') await loadBarber();
+      if (role === 'ADMIN') await loadAdmin();
+    }
+
+    async function loadCustomer() {
+      const [services, barbers, appointments] = await Promise.all([
+        api('/api/services'),
+        api('/api/services/barbers'),
+        api('/api/appointments/customer')
+      ]);
+
+      $('serviceSelect').innerHTML = services.map((service) =>
+        `<option value="${service.id}">${service.name} • ${money(service.price)} • ${service.duration} min</option>`
+      ).join('');
+      $('barberSelect').innerHTML = barbers.map((barber) =>
+        `<option value="${barber.id}">${barber.name} • ${barber.specialization || 'Barbeiro'}</option>`
+      ).join('');
+      $('timeSelect').innerHTML = times.map((time) => `<option value="${time}">${time}</option>`).join('');
+      $('dateInput').min = new Date().toISOString().slice(0, 10);
+      if (!$('dateInput').value) $('dateInput').value = $('dateInput').min;
+      renderAppointments($('customerAppointments'), appointments);
+    }
+
+    async function loadBarber() {
+      const appointments = await api('/api/appointments/barber');
+      renderAppointments($('barberAppointments'), appointments, true);
+    }
+
+    async function loadAdmin() {
+      const [stats, appointments] = await Promise.all([
+        api('/api/admin/statistics'),
+        api('/api/admin/appointments')
+      ]);
+      $('metricAppointments').textContent = stats.totalAppointments || 0;
+      $('metricRevenue').textContent = money(stats.totalRevenue);
+      $('metricCustomers').textContent = stats.totalCustomers || 0;
+      renderAppointments($('adminAppointments'), appointments);
+      await loadProfit();
+    }
+
+    async function loadProfit() {
+      const commission = Number($('commissionInput').value || 50);
+      const data = await api(`/api/admin/profit-distribution?commission=${commission}`);
+      $('profitList').innerHTML = data.barbers.length ? data.barbers.map((barber) => `
+        <div class="item">
+          <strong>${barber.barberName}</strong>
+          <small>${barber.servicesPerformed} serviços • bruto ${money(barber.grossRevenue)}<br>
+          Barbeiro: ${money(barber.barberShare)} • Casa: ${money(barber.houseShare)}</small>
+        </div>
+      `).join('') : '<div class="item"><small>Nenhum barbeiro encontrado.</small></div>';
+    }
+
+    function renderAppointments(target, appointments, canUpdate = false) {
+      target.innerHTML = appointments.length ? appointments.map((appointment) => `
+        <div class="item">
+          <strong>${appointment.serviceName || 'Serviço'} • ${appointment.status}</strong>
+          <small>
+            ${shortDate(appointment.date)} às ${String(appointment.time || '').slice(0, 5)}<br>
+            Barbeiro: ${appointment.barberName || '-'}${appointment.customerName ? `<br>Cliente: ${appointment.customerName}` : ''}
+          </small>
+          ${canUpdate ? `
+            <div class="item-actions">
+              <button class="secondary" onclick="updateStatus('${appointment.id}', 'CONFIRMED')">Confirmar</button>
+              <button class="secondary" onclick="updateStatus('${appointment.id}', 'COMPLETED')">Concluir</button>
+              <button class="secondary danger" onclick="updateStatus('${appointment.id}', 'CANCELLED')">Cancelar</button>
+            </div>
+          ` : ''}
+        </div>
+      `).join('') : '<div class="item"><small>Nenhum agendamento encontrado.</small></div>';
+    }
+
+    async function updateStatus(id, status) {
+      await api(`/api/appointments/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status })
+      });
+      await loadDashboard();
+    }
+
+    $('loginTab').addEventListener('click', () => switchAuth('login'));
+    $('registerTab').addEventListener('click', () => switchAuth('register'));
+
+    $('loginForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus($('authStatus'), 'Entrando...');
+      try {
+        const data = await api('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: $('loginEmail').value.trim(),
+            password: $('loginPassword').value
+          })
+        });
+        token = data.token;
+        user = data.user;
+        localStorage.setItem(tokenKey, token);
+        localStorage.setItem(userKey, JSON.stringify(user));
+        setStatus($('authStatus'), 'Login realizado.', 'ok');
+        renderSession();
+      } catch (error) {
+        setStatus($('authStatus'), error.message, 'error');
+      }
+    });
+
+    $('registerForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus($('authStatus'), 'Criando conta...');
+      try {
+        const data = await api('/api/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: $('registerName').value.trim(),
+            email: $('registerEmail').value.trim(),
+            phone: $('registerPhone').value.trim(),
+            password: $('registerPassword').value,
+            role: $('registerRole').value
+          })
+        });
+        token = data.token;
+        user = data.user;
+        localStorage.setItem(tokenKey, token);
+        localStorage.setItem(userKey, JSON.stringify(user));
+        setStatus($('authStatus'), 'Conta criada e conectada.', 'ok');
+        renderSession();
+      } catch (error) {
+        setStatus($('authStatus'), error.message, 'error');
+      }
+    });
+
+    $('bookingForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus($('bookingStatus'), 'Agendando...');
+      try {
+        await api('/api/appointments/book', {
+          method: 'POST',
+          body: JSON.stringify({
+            serviceId: $('serviceSelect').value,
+            barberId: $('barberSelect').value,
+            date: $('dateInput').value,
+            time: $('timeSelect').value,
+            notes: $('notesInput').value.trim()
+          })
+        });
+        $('notesInput').value = '';
+        setStatus($('bookingStatus'), 'Agendamento salvo no banco online.', 'ok');
+        await loadCustomer();
+      } catch (error) {
+        setStatus($('bookingStatus'), error.message, 'error');
+      }
+    });
+
+    $('refreshBtn').addEventListener('click', () => loadDashboard());
+    $('loadProfitBtn').addEventListener('click', () => loadProfit());
+    $('logoutBtn').addEventListener('click', () => {
+      token = null;
+      user = null;
+      localStorage.removeItem(tokenKey);
+      localStorage.removeItem(userKey);
+      renderSession();
+    });
+
+    window.updateStatus = updateStatus;
+    renderSession();
+  </script>
+</body>
+</html>

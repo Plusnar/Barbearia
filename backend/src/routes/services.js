@@ -6,17 +6,17 @@ import { adminMiddleware } from '../middleware/auth.js';
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  db.query('SELECT * FROM services ORDER BY price ASC', (err, results) => {
+  db.query('SELECT * FROM services WHERE active = 1 ORDER BY price ASC', (err, results) => {
     if (err) {
       return res.status(500).json({ success: false, message: 'Database error' });
     }
 
-    const services = results.map(s => ({
-      id: s.id,
-      name: s.name,
-      description: s.description,
-      duration: s.duration,
-      price: s.price
+    const services = results.map(service => ({
+      id: service.id,
+      name: service.name,
+      description: service.description,
+      duration: service.duration,
+      price: service.price
     }));
 
     res.json(services);
@@ -24,22 +24,26 @@ router.get('/', (req, res) => {
 });
 
 router.get('/barbers', (req, res) => {
-  db.query('SELECT id, name, email, phone, specialization FROM users WHERE role = ? AND available = 1', ['BARBER'], (err, results) => {
-    if (err) {
-      return res.status(500).json({ success: false, message: 'Database error' });
+  db.query(
+    'SELECT id, name, email, phone, specialization FROM users WHERE role = ? AND available = 1 ORDER BY name ASC',
+    ['BARBER'],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+
+      const barbers = results.map(barber => ({
+        id: barber.id,
+        name: barber.name,
+        email: barber.email,
+        phone: barber.phone,
+        specialization: barber.specialization,
+        available: true
+      }));
+
+      res.json(barbers);
     }
-
-    const barbers = results.map(b => ({
-      id: b.id,
-      name: b.name,
-      email: b.email,
-      phone: b.phone,
-      specialization: b.specialization,
-      available: true
-    }));
-
-    res.json(barbers);
-  });
+  );
 });
 
 router.post('/', adminMiddleware, (req, res) => {

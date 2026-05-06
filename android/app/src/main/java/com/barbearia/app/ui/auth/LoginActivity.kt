@@ -1,107 +1,118 @@
-﻿package com.barbearia.app.ui.auth
+package com.barbearia.app.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import com.barbearia.app.BarbeariaApplication
 import com.barbearia.app.R
-import com.barbearia.app.data.api.ApiService
-import com.barbearia.app.data.api.LoginRequest
-import com.barbearia.app.data.api.RetrofitClient
-import com.barbearia.app.data.api.SharedPreferencesManager
+import com.barbearia.app.databinding.ActivityLoginBinding
 import com.barbearia.app.ui.admin.AdminPanelActivity
 import com.barbearia.app.ui.barber.BarberDashboardActivity
-import com.barbearia.app.ui.customer.CustomerHomeActivity
+import com.barbearia.app.ui.common.UiState
+import com.barbearia.app.ui.common.ViewModelFactory
 import com.barbearia.app.ui.customer.MainActivity
-import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var emailInput: EditText
-    private lateinit var passwordInput: EditText
-    private lateinit var loginButton: Button
-    private lateinit var registerLink: TextView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var apiService: ApiService
-    private lateinit var sharedPrefsManager: SharedPreferencesManager
+    private lateinit var binding: ActivityLoginBinding
+
+    private val viewModel: LoginViewModel by viewModels {
+        ViewModelFactory((application as BarbeariaApplication).repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        sharedPrefsManager = SharedPreferencesManager(this)
-        if (sharedPrefsManager.isLoggedIn()) {
-            navigateBasedOnRole()
+        viewModel.restoreSession()?.let {
+            navigateBasedOnRole(it.role)
             return
         }
 
-        RetrofitClient.initialize(this)
-        apiService = RetrofitClient.getApiService()
-
-        emailInput = findViewById(R.id.email_input)
-        passwordInput = findViewById(R.id.password_input)
-        loginButton = findViewById(R.id.login_button)
-        registerLink = findViewById(R.id.register_link)
-        progressBar = findViewById(R.id.progress_bar)
-
-        loginButton.setOnClickListener { handleLogin() }
-        registerLink.setOnClickListener { navigateToRegister() }
+        setupListeners()
+        playIntroAnimation()
+        observeState()
     }
 
-    private fun handleLogin() {
-        val email = emailInput.text.toString().trim()
-        val password = passwordInput.text.toString().trim()
-
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
-            return
+    private fun setupListeners() {
+        binding.loginButton.setOnClickListener {
+            clearErrors()
+            viewModel.login(
+                email = binding.emailInput.text?.toString().orEmpty(),
+                password = binding.passwordInput.text?.toString().orEmpty()
+            )
         }
 
-        progressBar.visibility = android.view.View.VISIBLE
-        loginButton.isEnabled = false
+        binding.registerLink.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+            overridePendingTransition(R.anim.screen_enter_right, R.anim.screen_exit_left)
+        }
+    }
 
-        lifecycleScope.launch {
-            try {
-                val response = apiService.loginUser(LoginRequest(email, password))
-                if (response.isSuccessful && response.body() != null) {
-                    val authResponse = response.body()!!
-                    sharedPrefsManager.saveToken(authResponse.token)
-                    sharedPrefsManager.saveUser(
-                        authResponse.user.id,
-                        authResponse.user.name,
-                        authResponse.user.email,
-                        authResponse.user.role.name
-                    )
-                    navigateBasedOnRole()
-                } else {
-                    Toast.makeText(this@LoginActivity, "Invalid credentials", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this@LoginActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
-            } finally {
-                progressBar.visibility = android.view.View.GONE
-                loginButton.isEnabled = true
+    private fun playIntroAnimation() {
+        binding.logoContainer.scaleX = 0.86f
+        binding.logoContainer.scaleY = 0.86f
+        binding.logoContainer.alpha = 0f
+        binding.logoContainer.animate()
+            .alpha(1f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(420L)
+            .start()
+
+        binding.loginButton.setOnTouchListener { view, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN -> view.animate().scaleX(0.98f).scaleY(0.98f).setDuration(90L).start()
+                android.view.MotionEvent.ACTION_UP,
+                android.view.MotionEvent.ACTION_CANCEL -> view.animate().scaleX(1f).scaleY(1f).setDuration(120L).start()
+            }
+            false
+        }
+    }
+
+    private fun observeState() {
+        viewModel.uiState.observe(this) { state ->
+            val isLoading = state is UiState.Loading
+            binding.loginButton.isEnabled = !isLoading
+            binding.progressBar.visibility = if (isLoading) android.view.View.VISIBLE else android.view.View.GONE
+
+            when (state) {
+                is UiState.Error -> handleError(state.message)
+                is UiState.Success -> navigateBasedOnRole(state.data.role)
+                UiState.Idle, UiState.Loading -> Unit
             }
         }
     }
 
-    private fun navigateBasedOnRole() {
-        val role = sharedPrefsManager.getUserRole()
-        val intent = when (role) {
-            "ADMIN" -> Intent(this, AdminPanelActivity::class.java)
-            "BARBER" -> Intent(this, BarberDashboardActivity::class.java)
-            else -> Intent(this, CustomerHomeActivity::class.java)
+    private fun clearErrors() {
+        binding.emailInput.error = null
+        binding.passwordInput.error = null
+    }
+
+    private fun handleError(message: String) {
+        when {
+            message.contains("e-mail", ignoreCase = true) -> binding.emailInput.error = message
+            message.contains("senha", ignoreCase = true) ||
+                message.contains("credenciais", ignoreCase = true) ||
+                message.contains("credentials", ignoreCase = true) ||
+                message.contains("invalid", ignoreCase = true) -> {
+                binding.passwordInput.error = message
+            }
+
+            else -> Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         }
-        startActivity(intent)
+    }
+
+    private fun navigateBasedOnRole(role: String) {
+        val destination = when (role.uppercase()) {
+            "ADMIN" -> AdminPanelActivity::class.java
+            "BARBER" -> BarberDashboardActivity::class.java
+            else -> MainActivity::class.java
+        }
+        startActivity(Intent(this, destination))
+        overridePendingTransition(R.anim.screen_enter_right, R.anim.screen_exit_left)
         finish()
     }
-
-    private fun navigateToRegister() {
-        startActivity(Intent(this, RegisterActivity::class.java))
-    }
 }
-

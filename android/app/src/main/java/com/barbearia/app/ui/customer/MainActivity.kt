@@ -2,92 +2,92 @@ package com.barbearia.app.ui.customer
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.barbearia.app.BarbeariaApplication
 import com.barbearia.app.R
-import com.barbearia.app.data.api.ApiService
-import com.barbearia.app.data.api.RetrofitClient
-import com.barbearia.app.data.api.SharedPreferencesManager
-import com.barbearia.app.data.model.Appointment
-import com.barbearia.app.ui.auth.LoginActivity
+import com.barbearia.app.databinding.ActivityMainBinding
 import com.barbearia.app.ui.adapter.AppointmentAdapter
-import kotlinx.coroutines.launch
+import com.barbearia.app.ui.adapter.PlanAdapter
+import com.barbearia.app.ui.auth.LoginActivity
+import com.barbearia.app.ui.common.UiState
+import com.barbearia.app.ui.common.ViewModelFactory
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var newAppointmentButton: Button
-    private lateinit var logoutButton: Button
-    private lateinit var appointmentsRecyclerView: RecyclerView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var emptyStateLayout: LinearLayout
-    private lateinit var apiService: ApiService
-    private lateinit var sharedPrefsManager: SharedPreferencesManager
-    private lateinit var adapter: AppointmentAdapter
+    private lateinit var binding: ActivityMainBinding
+
+    private val appointmentAdapter = AppointmentAdapter()
+    private val planAdapter = PlanAdapter()
+
+    private val viewModel: MainViewModel by viewModels {
+        ViewModelFactory((application as BarbeariaApplication).repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        RetrofitClient.initialize(this)
-        sharedPrefsManager = SharedPreferencesManager(this)
-        apiService = RetrofitClient.getApiService()
-
-        newAppointmentButton = findViewById(R.id.new_appointment_button)
-        logoutButton = findViewById(R.id.logout_button)
-        appointmentsRecyclerView = findViewById(R.id.appointments_recycler)
-        progressBar = findViewById(R.id.progress_bar)
-        emptyStateLayout = findViewById(R.id.empty_state_layout)
-
-        appointmentsRecyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = AppointmentAdapter()
-        appointmentsRecyclerView.adapter = adapter
-
-        newAppointmentButton.setOnClickListener {
-            startActivity(Intent(this, AppointmentBookingActivity::class.java))
-        }
-
-        logoutButton.setOnClickListener {
-            sharedPrefsManager.logout()
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
-
-        loadAppointments()
+        setupRecyclerViews()
+        setupListeners()
+        observeState()
+        viewModel.loadDashboard()
     }
 
     override fun onResume() {
         super.onResume()
-        loadAppointments()
+        viewModel.loadDashboard()
     }
 
-    private fun loadAppointments() {
-        progressBar.visibility = android.view.View.VISIBLE
-        lifecycleScope.launch {
-            try {
-                val response = apiService.getCustomerAppointments()
-                if (response.isSuccessful && response.body() != null) {
-                    val appointments = response.body()!!
-                    if (appointments.isEmpty()) {
-                        emptyStateLayout.visibility = android.view.View.VISIBLE
-                        appointmentsRecyclerView.visibility = android.view.View.GONE
-                    } else {
-                        emptyStateLayout.visibility = android.view.View.GONE
-                        appointmentsRecyclerView.visibility = android.view.View.VISIBLE
-                        adapter.submitList(appointments)
-                    }
-                } else {
-                    Toast.makeText(this@MainActivity, "Failed to load appointments", Toast.LENGTH_SHORT).show()
+    private fun setupRecyclerViews() {
+        binding.servicesRecycler.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = planAdapter
+        }
+        binding.appointmentsRecycler.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = appointmentAdapter
+        }
+    }
+
+    private fun setupListeners() {
+        binding.bookHeroButton.setOnClickListener {
+            startActivity(Intent(this, AppointmentBookingActivity::class.java))
+            overridePendingTransition(R.anim.screen_enter_right, R.anim.screen_exit_left)
+        }
+        binding.newAppointmentButton.setOnClickListener {
+            startActivity(Intent(this, AppointmentBookingActivity::class.java))
+            overridePendingTransition(R.anim.screen_enter_right, R.anim.screen_exit_left)
+        }
+        binding.logoutButton.setOnClickListener {
+            viewModel.logout()
+            startActivity(Intent(this, LoginActivity::class.java))
+            overridePendingTransition(R.anim.screen_enter_left, R.anim.screen_exit_right)
+            finish()
+        }
+    }
+
+    private fun observeState() {
+        viewModel.uiState.observe(this) { state ->
+            binding.progressBar.visibility = if (state is UiState.Loading) android.view.View.VISIBLE else android.view.View.GONE
+
+            when (state) {
+                is UiState.Error -> Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
+                is UiState.Success -> {
+                    val data = state.data
+                    binding.welcomeTitle.text = "Bem-vindo, ${data.user?.name?.substringBefore(' ') ?: "Castilho"}"
+                    binding.welcomeSubtitle.text = "Seu estilo premium começa com um agendamento bem feito."
+                    binding.emptyAppointments.visibility =
+                        if (data.appointments.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+                    binding.appointmentsRecycler.visibility =
+                        if (data.appointments.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+                    appointmentAdapter.submitList(data.appointments)
+                    planAdapter.submitList(data.plans)
                 }
-            } catch (e: Exception) {
-                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            } finally {
-                progressBar.visibility = android.view.View.GONE
+
+                UiState.Idle, UiState.Loading -> Unit
             }
         }
     }
