@@ -1,0 +1,37 @@
+<!-- ADMIN VIEW - Métricas e Distribuição de Lucros -->
+<div id="adminView" class="grid hidden">
+  <!-- Métrica: Total de Agendamentos -->
+  <section class="card span-4">
+    <h3>Agendamentos</h3>
+    <div id="metricAppointments" class="metric">0</div>
+  </section>
+
+  <!-- Métrica: Receita Concluída -->
+  <section class="card span-4">
+    <h3>Receita concluída</h3>
+    <div id="metricRevenue" class="metric">R$ 0,00</div>
+  </section>
+
+  <!-- Métrica: Total de Clientes -->
+  <section class="card span-4">
+    <h3>Clientes</h3>
+    <div id="metricCustomers" class="metric">0</div>
+  </section>
+
+  <!-- Distribuição de Lucro -->
+  <section class="card span-5">
+    <h3>Distribuição de lucro</h3>
+    <div class="field">
+      <label for="commissionInput">Comissão do barbeiro (%)</label>
+      <input id="commissionInput" type="number" min="0" max="100" value="50" />
+    </div>
+    <button id="loadProfitBtn" class="primary" type="button">Calcular</button>
+    <div id="profitList" class="list" style="margin-top: 14px;"></div>
+  </section>
+
+  <!-- Todos os Agendamentos -->
+  <section class="card span-7">
+    <h3>Todos os agendamentos</h3>
+    <div id="adminAppointments" class="list"></div>
+  </section>
+</div>
