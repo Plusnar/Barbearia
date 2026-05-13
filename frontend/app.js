@@ -17,6 +17,13 @@ let adminAppointmentsCache = [];
 
 const $ = (id) => document.getElementById(id);
 
+function startApp() {
+  $('welcomeScreen').classList.add('is-hidden');
+  window.setTimeout(() => {
+    $('welcomeScreen').remove();
+  }, 450);
+}
+
 function readUser() {
   try {
     return JSON.parse(localStorage.getItem(userKey));
@@ -311,6 +318,8 @@ function logout() {
 
 $('loginTab').addEventListener('click', () => switchAuth('login'));
 $('registerTab').addEventListener('click', () => switchAuth('register'));
+$('welcomeScreen').addEventListener('click', startApp);
+$('welcomeScreen').addEventListener('touchstart', startApp, { once: true });
 $('refreshBtn').addEventListener('click', () => loadDashboard());
 $('logoutBtn').addEventListener('click', logout);
 $('statusFilter').addEventListener('change', renderAdminAppointments);
