@@ -357,8 +357,7 @@ $('registerForm').addEventListener('submit', async (event) => {
         name: $('registerName').value.trim(),
         email: $('registerEmail').value.trim(),
         phone: $('registerPhone').value.trim(),
-        password: $('registerPassword').value,
-        role: $('registerRole').value
+        password: $('registerPassword').value
       })
     });
     $('loginEmail').value = $('registerEmail').value.trim();
@@ -386,6 +385,28 @@ $('passwordForm').addEventListener('submit', async (event) => {
     setStatus($('passwordStatus'), 'Senha alterada com sucesso.', 'ok');
   } catch (error) {
     setStatus($('passwordStatus'), error.message, 'error');
+  }
+});
+
+$('barberForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  setStatus($('barberStatus'), 'Criando barbeiro...');
+  try {
+    await api('/api/admin/barbers', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: $('barberName').value.trim(),
+        email: $('barberEmail').value.trim(),
+        phone: $('barberPhone').value.trim(),
+        specialization: $('barberSpecialization').value.trim(),
+        password: $('barberPassword').value
+      })
+    });
+    $('barberForm').reset();
+    setStatus($('barberStatus'), 'Barbeiro cadastrado com sucesso.', 'ok');
+    await loadAdmin();
+  } catch (error) {
+    setStatus($('barberStatus'), error.message, 'error');
   }
 });
 

@@ -1,6 +1,9 @@
 import express from 'express';
+import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 import db from '../config/database.js';
 import { adminMiddleware } from '../middleware/auth.js';
+import { validateEmail, validatePassword, validatePhone } from '../utils/validation.js';
 
 const router = express.Router();
 
@@ -157,6 +160,66 @@ router.get('/barbers', (req, res) => {
           completedAppointments: Number(row.completed_appointments || 0),
           grossRevenue: Number(row.gross_revenue || 0)
         })));
+      }
+    );
+  });
+});
+
+router.post('/barbers', (req, res) => {
+  const name = req.body.name?.trim();
+  const email = req.body.email?.trim().toLowerCase();
+  const phone = req.body.phone?.trim();
+  const password = req.body.password;
+  const specialization = req.body.specialization?.trim() || 'Barbeiro';
+
+  if (!name || !email || !phone || !password) {
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ success: false, message: 'Invalid email format' });
+  }
+
+  if (!validatePhone(phone)) {
+    return res.status(400).json({ success: false, message: 'Invalid phone number' });
+  }
+
+  if (!validatePassword(password)) {
+    return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+  }
+
+  db.query('SELECT id FROM users WHERE email = ?', [email], (selectError, users) => {
+    if (selectError) {
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (users.length > 0) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    const barberId = uuidv4();
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    db.query(
+      'INSERT INTO users (id, name, email, phone, password, role, specialization, available) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [barberId, name, email, phone, hashedPassword, 'BARBER', specialization, 1],
+      (insertError) => {
+        if (insertError) {
+          return res.status(500).json({ success: false, message: 'Database error' });
+        }
+
+        res.json({
+          success: true,
+          barber: {
+            id: barberId,
+            name,
+            email,
+            phone,
+            role: 'BARBER',
+            specialization,
+            available: true
+          }
+        });
       }
     );
   });

@@ -58,14 +58,6 @@
             <span>Senha</span>
             <input id="registerPassword" type="password" autocomplete="new-password" required />
           </label>
-          <label>
-            <span>Perfil</span>
-            <select id="registerRole">
-              <option value="CUSTOMER">Cliente</option>
-              <option value="BARBER">Barbeiro</option>
-              <option value="ADMIN">Administrador</option>
-            </select>
-          </label>
           <button class="primary" type="submit">Criar conta</button>
         </form>
         <div id="authStatus" class="status"></div>
@@ -184,6 +176,22 @@
           </div>
           <div id="profitSummary" class="summary-row"></div>
           <div id="profitList" class="list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <h3>Novo barbeiro</h3>
+            <small>Crie o acesso do profissional ao painel de barbeiro.</small>
+          </div>
+          <form id="barberForm" class="form-stack compact-form">
+            <label><span>Nome</span><input id="barberName" type="text" required /></label>
+            <label><span>E-mail</span><input id="barberEmail" type="email" required /></label>
+            <label><span>Telefone</span><input id="barberPhone" type="tel" required /></label>
+            <label><span>Especialidade</span><input id="barberSpecialization" type="text" placeholder="Ex.: Cortes e barba" /></label>
+            <label><span>Senha inicial</span><input id="barberPassword" type="password" required /></label>
+            <button class="primary" type="submit">Cadastrar barbeiro</button>
+          </form>
+          <div id="barberStatus" class="status"></div>
         </section>
 
         <section class="panel">

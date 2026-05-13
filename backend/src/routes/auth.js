@@ -15,7 +15,7 @@ router.post('/register', (req, res) => {
   const email = req.body.email?.trim().toLowerCase();
   const phone = req.body.phone?.trim();
   const password = req.body.password;
-  const role = ['CUSTOMER', 'BARBER', 'ADMIN'].includes(req.body.role) ? req.body.role : 'CUSTOMER';
+  const role = 'CUSTOMER';
 
   if (!name || !email || !phone || !password) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
