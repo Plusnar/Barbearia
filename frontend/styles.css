@@ -139,8 +139,8 @@ label span {
   top: 22px;
   left: 50%;
   z-index: 1;
-  width: 88px;
-  max-width: 28vw;
+  width: 112px;
+  max-width: 34vw;
   height: auto;
   transform: translateX(-50%);
   filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.68));
