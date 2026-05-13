@@ -14,6 +14,8 @@ let token = localStorage.getItem(tokenKey);
 let user = readUser();
 let servicesCache = [];
 let adminAppointmentsCache = [];
+let accountOriginalParent = null;
+let accountOriginalNext = null;
 
 const $ = (id) => document.getElementById(id);
 
@@ -130,7 +132,39 @@ function renderSession() {
   $('customerView').classList.toggle('hidden', role !== 'CUSTOMER');
   $('barberView').classList.toggle('hidden', role !== 'BARBER');
   $('adminView').classList.toggle('hidden', role !== 'ADMIN');
+  placeAccountPanel(role);
   loadDashboard();
+}
+
+function placeAccountPanel(role) {
+  const accountPanel = $('accountPanel');
+  const adminMount = $('adminAccountMount');
+
+  if (!accountOriginalParent) {
+    accountOriginalParent = accountPanel.parentNode;
+    accountOriginalNext = accountPanel.nextSibling;
+  }
+
+  if (role === 'ADMIN') {
+    adminMount.appendChild(accountPanel);
+    accountPanel.classList.remove('account-panel');
+    return;
+  }
+
+  if (accountPanel.parentNode !== accountOriginalParent) {
+    accountOriginalParent.insertBefore(accountPanel, accountOriginalNext);
+  }
+  accountPanel.classList.add('account-panel');
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(button => {
+    button.classList.toggle('active', button.dataset.adminTab === tab);
+  });
+
+  document.querySelectorAll('.admin-section').forEach(section => {
+    section.classList.toggle('hidden', section.dataset.adminSection !== tab);
+  });
 }
 
 async function loadDashboard() {
@@ -325,6 +359,9 @@ $('logoutBtn').addEventListener('click', logout);
 $('statusFilter').addEventListener('change', renderAdminAppointments);
 $('clearServiceBtn').addEventListener('click', clearServiceForm);
 $('dateInput').addEventListener('change', applyBusinessHours);
+document.querySelectorAll('.admin-tab').forEach(button => {
+  button.addEventListener('click', () => switchAdminTab(button.dataset.adminTab));
+});
 
 $('loginForm').addEventListener('submit', async (event) => {
   event.preventDefault();

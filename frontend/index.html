@@ -84,7 +84,7 @@
         </div>
       </section>
 
-      <section class="panel account-panel">
+      <section id="accountPanel" class="panel account-panel">
         <div class="panel-title">
           <h3>Minha conta</h3>
           <small>Segurança da conta e acesso ao painel.</small>
@@ -169,7 +169,19 @@
           <article class="metric-card"><span>Clientes</span><strong id="metricCustomers">0</strong></article>
         </section>
 
-        <section class="panel">
+        <nav class="admin-tabs span-full" aria-label="Categorias do painel administrativo">
+          <button class="admin-tab active" type="button" data-admin-tab="account">Minha conta</button>
+          <button class="admin-tab" type="button" data-admin-tab="profit">Lucro</button>
+          <button class="admin-tab" type="button" data-admin-tab="barber">Novo barbeiro</button>
+          <button class="admin-tab" type="button" data-admin-tab="services">Serviços</button>
+          <button class="admin-tab" type="button" data-admin-tab="agenda">Agenda</button>
+        </nav>
+
+        <section class="panel admin-section hidden" data-admin-section="account">
+          <div id="adminAccountMount"></div>
+        </section>
+
+        <section class="panel admin-section" data-admin-section="profit">
           <div class="panel-title">
             <h3>Lucro por barbeiro</h3>
             <small>Ajuste comissão individual e acompanhe a divisão.</small>
@@ -178,7 +190,7 @@
           <div id="profitList" class="list"></div>
         </section>
 
-        <section class="panel">
+        <section class="panel admin-section hidden" data-admin-section="barber">
           <div class="panel-title">
             <h3>Novo barbeiro</h3>
             <small>Crie o acesso do profissional ao painel de barbeiro.</small>
@@ -194,7 +206,7 @@
           <div id="barberStatus" class="status"></div>
         </section>
 
-        <section class="panel">
+        <section class="panel admin-section hidden" data-admin-section="services">
           <div class="panel-title">
             <h3>Serviços</h3>
             <small>Cadastre e edite preços usados nos agendamentos.</small>
@@ -214,7 +226,7 @@
           <div id="serviceList" class="list"></div>
         </section>
 
-        <section class="panel span-full">
+        <section class="panel span-full admin-section hidden" data-admin-section="agenda">
           <div class="panel-title">
             <h3>Agenda geral</h3>
             <small>Controle todos os atendimentos da barbearia.</small>
