@@ -25,7 +25,10 @@ const frontendCandidates = [
 ];
 const frontendPath = frontendCandidates.find((candidate) => fs.existsSync(candidate));
 
-app.use(cors());
+const corsOrigin = !process.env.CORS_ORIGIN || process.env.CORS_ORIGIN === 'true'
+  ? true
+  : process.env.CORS_ORIGIN;
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
 
 if (frontendPath) {
@@ -46,6 +49,9 @@ app.use((err, req, res, next) => {
   });
 });
 
+export default app;
+
+if (process.env.VERCEL !== '1') {
 db.getConnection((err, conn) => {
   if (err) {
     console.error('Database connection failed:', err);
@@ -58,3 +64,4 @@ db.getConnection((err, conn) => {
     console.log(`Server is running on port ${PORT}`);
   });
 });
+}

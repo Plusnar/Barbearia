@@ -12,6 +12,43 @@ const isPastDate = (dateString) => {
   return Number.isNaN(selectedDate.getTime()) || selectedDate < today;
 };
 
+const getBusinessHours = (dateString) => {
+  const date = new Date(`${dateString}T00:00:00`);
+  const day = date.getDay();
+
+  if (day === 0) return null;
+  if (day === 6) return { start: '09:00', end: '17:00' };
+  return { start: '09:00', end: '20:00' };
+};
+
+const timeToMinutes = (time) => {
+  const [hours, minutes] = String(time).slice(0, 5).split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+const isInsideBusinessHours = (date, time) => {
+  if (!validateDate(date) || !validateTime(time)) return false;
+  const hours = getBusinessHours(date);
+  if (!hours) return false;
+
+  const selected = timeToMinutes(time);
+  return selected >= timeToMinutes(hours.start) && selected <= timeToMinutes(hours.end);
+};
+
+const generateSuggestedTimes = (date) => {
+  const hours = getBusinessHours(date);
+  if (!hours) return [];
+
+  const times = [];
+  for (let current = timeToMinutes(hours.start); current <= timeToMinutes(hours.end); current += 15) {
+    const hour = String(Math.floor(current / 60)).padStart(2, '0');
+    const minute = String(current % 60).padStart(2, '0');
+    times.push(`${hour}:${minute}`);
+  }
+
+  return times;
+};
+
 router.get('/available-slots', (req, res) => {
   const { date } = req.query;
 
@@ -19,10 +56,11 @@ router.get('/available-slots', (req, res) => {
     return res.status(400).json({ success: false, message: 'Valid date required' });
   }
 
-  const times = [
-    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '12:00', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
-  ];
+  const times = generateSuggestedTimes(date);
+
+  if (times.length === 0) {
+    return res.json([]);
+  }
 
   db.query('SELECT * FROM users WHERE role = ? AND available = 1', ['BARBER'], (barberError, barbers) => {
     if (barberError) {
@@ -63,6 +101,13 @@ router.post('/book', (req, res) => {
 
   if (!validateDate(date) || !validateTime(time) || isPastDate(date)) {
     return res.status(400).json({ success: false, message: 'Choose a valid future date and time' });
+  }
+
+  if (!isInsideBusinessHours(date, time)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Business hours are Monday to Friday from 09:00 to 20:00 and Saturday from 09:00 to 17:00'
+    });
   }
 
   db.query(
@@ -194,9 +239,20 @@ router.put('/:id/status', (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid status' });
   }
 
-  db.query('UPDATE appointments SET status = ? WHERE id = ?', [status, id], (updateError) => {
+  const params = req.userRole === 'BARBER'
+    ? [status, id, req.userId]
+    : [status, id];
+  const updateSql = req.userRole === 'BARBER'
+    ? 'UPDATE appointments SET status = ? WHERE id = ? AND barber_id = ?'
+    : 'UPDATE appointments SET status = ? WHERE id = ?';
+
+  db.query(updateSql, params, (updateError, result) => {
     if (updateError) {
       return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Appointment not found for this user' });
     }
 
     db.query(

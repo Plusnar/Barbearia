@@ -6,6 +6,26 @@ const router = express.Router();
 
 router.use(adminMiddleware);
 
+const defaultCommission = 50;
+
+const ensureCommissionTable = (callback) => {
+  db.query(
+    `CREATE TABLE IF NOT EXISTS barber_commissions (
+      barber_id VARCHAR(36) PRIMARY KEY,
+      commission_percentage DECIMAL(5, 2) NOT NULL DEFAULT 50,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (barber_id) REFERENCES users(id) ON DELETE CASCADE
+    )`,
+    callback
+  );
+};
+
+const normalizeCommission = (value) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return defaultCommission;
+  return Math.min(Math.max(parsed, 0), 100);
+};
+
 router.get('/statistics', (req, res) => {
   db.query(
     `SELECT 
@@ -34,37 +54,47 @@ router.get('/statistics', (req, res) => {
 });
 
 router.get('/profit-distribution', (req, res) => {
-  const rawCommission = Number.parseInt(req.query.commission || '50', 10);
-  const commissionPercentage = Number.isNaN(rawCommission)
-    ? 50
-    : Math.min(Math.max(rawCommission, 0), 100);
-  const commissionRate = commissionPercentage / 100;
+  ensureCommissionTable((tableError) => {
+    if (tableError) {
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
 
-  db.query(
-    `SELECT
-      b.id as barber_id,
-      b.name as barber_name,
-      COUNT(a.id) as services_performed,
-      COALESCE(SUM(s.price), 0) as gross_revenue
-    FROM users b
-    LEFT JOIN appointments a ON a.barber_id = b.id AND a.status = 'COMPLETED'
-    LEFT JOIN services s ON a.service_id = s.id
-    WHERE b.role = 'BARBER'
-    GROUP BY b.id, b.name
-    ORDER BY gross_revenue DESC, b.name ASC`,
-    (err, results) => {
+    db.query(
+      `SELECT
+        b.id as barber_id,
+        b.name as barber_name,
+        b.email,
+        b.phone,
+        b.specialization,
+        COALESCE(bc.commission_percentage, ?) as commission_percentage,
+        COUNT(a.id) as services_performed,
+        COALESCE(SUM(s.price), 0) as gross_revenue
+      FROM users b
+      LEFT JOIN barber_commissions bc ON bc.barber_id = b.id
+      LEFT JOIN appointments a ON a.barber_id = b.id AND a.status = 'COMPLETED'
+      LEFT JOIN services s ON a.service_id = s.id
+      WHERE b.role = 'BARBER'
+      GROUP BY b.id, b.name, b.email, b.phone, b.specialization, bc.commission_percentage
+      ORDER BY gross_revenue DESC, b.name ASC`,
+      [defaultCommission],
+      (err, results) => {
       if (err) {
         return res.status(500).json({ success: false, message: 'Database error' });
       }
 
       const barbers = results.map(row => {
         const grossRevenue = Number(row.gross_revenue || 0);
+        const commissionPercentage = normalizeCommission(row.commission_percentage);
+        const commissionRate = commissionPercentage / 100;
         const barberShare = Number((grossRevenue * commissionRate).toFixed(2));
         const houseShare = Number((grossRevenue - barberShare).toFixed(2));
 
         return {
           barberId: row.barber_id,
           barberName: row.barber_name,
+          email: row.email,
+          phone: row.phone,
+          specialization: row.specialization,
           servicesPerformed: Number(row.services_performed || 0),
           grossRevenue,
           barberShare,
@@ -74,14 +104,97 @@ router.get('/profit-distribution', (req, res) => {
       });
 
       res.json({
-        commissionPercentage,
         totalGrossRevenue: Number(barbers.reduce((sum, item) => sum + item.grossRevenue, 0).toFixed(2)),
         totalBarberShare: Number(barbers.reduce((sum, item) => sum + item.barberShare, 0).toFixed(2)),
         totalHouseShare: Number(barbers.reduce((sum, item) => sum + item.houseShare, 0).toFixed(2)),
         barbers
       });
+      }
+    );
+  });
+});
+
+router.get('/barbers', (req, res) => {
+  ensureCommissionTable((tableError) => {
+    if (tableError) {
+      return res.status(500).json({ success: false, message: 'Database error' });
     }
-  );
+
+    db.query(
+      `SELECT
+        b.id,
+        b.name,
+        b.email,
+        b.phone,
+        b.specialization,
+        b.available,
+        COALESCE(bc.commission_percentage, ?) as commission_percentage,
+        COUNT(a.id) as total_appointments,
+        SUM(CASE WHEN a.status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_appointments,
+        COALESCE(SUM(CASE WHEN a.status = 'COMPLETED' THEN s.price ELSE 0 END), 0) as gross_revenue
+      FROM users b
+      LEFT JOIN barber_commissions bc ON bc.barber_id = b.id
+      LEFT JOIN appointments a ON a.barber_id = b.id
+      LEFT JOIN services s ON s.id = a.service_id
+      WHERE b.role = 'BARBER'
+      GROUP BY b.id, b.name, b.email, b.phone, b.specialization, b.available, bc.commission_percentage
+      ORDER BY b.name ASC`,
+      [defaultCommission],
+      (err, results) => {
+        if (err) {
+          return res.status(500).json({ success: false, message: 'Database error' });
+        }
+
+        res.json(results.map(row => ({
+          id: row.id,
+          name: row.name,
+          email: row.email,
+          phone: row.phone,
+          specialization: row.specialization,
+          available: Boolean(row.available),
+          commissionPercentage: normalizeCommission(row.commission_percentage),
+          totalAppointments: Number(row.total_appointments || 0),
+          completedAppointments: Number(row.completed_appointments || 0),
+          grossRevenue: Number(row.gross_revenue || 0)
+        })));
+      }
+    );
+  });
+});
+
+router.put('/barbers/:id/commission', (req, res) => {
+  const { id } = req.params;
+  const commission = normalizeCommission(req.body.commissionPercentage);
+
+  ensureCommissionTable((tableError) => {
+    if (tableError) {
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    db.query('SELECT id FROM users WHERE id = ? AND role = ?', [id, 'BARBER'], (selectError, users) => {
+      if (selectError) {
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+
+      if (users.length === 0) {
+        return res.status(404).json({ success: false, message: 'Barber not found' });
+      }
+
+      db.query(
+        `INSERT INTO barber_commissions (barber_id, commission_percentage)
+         VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE commission_percentage = VALUES(commission_percentage)`,
+        [id, commission],
+        (upsertError) => {
+          if (upsertError) {
+            return res.status(500).json({ success: false, message: 'Database error' });
+          }
+
+          res.json({ success: true, barberId: id, commissionPercentage: commission });
+        }
+      );
+    });
+  });
 });
 
 router.get('/appointments', (req, res) => {

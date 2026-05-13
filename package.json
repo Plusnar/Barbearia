@@ -1,0 +1,27 @@
+{
+  "name": "barbearia-web",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node backend/src/index.js",
+    "dev": "node frontend/static-server.js",
+    "api": "node backend/src/index.js",
+    "vercel-build": "echo Static frontend ready"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "mysql2": "^3.6.0",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

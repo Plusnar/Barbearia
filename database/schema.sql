@@ -130,3 +130,10 @@ CREATE TABLE payments (
   INDEX idx_payment_date (payment_date),
   INDEX idx_barber_id (barber_id)
 );
+
+CREATE TABLE barber_commissions (
+  barber_id VARCHAR(36) PRIMARY KEY,
+  commission_percentage DECIMAL(5, 2) NOT NULL DEFAULT 50,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (barber_id) REFERENCES users(id) ON DELETE CASCADE
+);

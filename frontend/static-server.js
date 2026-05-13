@@ -21,7 +21,7 @@ const types = {
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const requestedPath = url.pathname === '/' ? '/demo.html' : url.pathname;
+  const requestedPath = url.pathname === '/' ? '/index.html' : url.pathname;
   const filePath = path.normalize(path.join(__dirname, requestedPath));
 
   if (!filePath.startsWith(__dirname)) {
@@ -33,7 +33,7 @@ const server = http.createServer((req, res) => {
   fs.readFile(filePath, (error, data) => {
     if (error) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('Arquivo não encontrado');
+      res.end('Arquivo nao encontrado');
       return;
     }
 
@@ -43,5 +43,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`Demo web disponível em http://localhost:${port}/demo.html`);
+  console.log(`Sistema web disponivel em http://localhost:${port}/`);
 });
