@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lancamento de lucros | Barbearia Castilho</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      min-height: 100vh;
+    }
+
+    .profit-launch-page {
+      width: min(1180px, 100%);
+      min-height: 100vh;
+      padding: 18px;
+    }
+
+    .profit-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .profit-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .profit-logo {
+      width: 54px;
+      height: 54px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(212, 154, 58, 0.35);
+      border-radius: 50%;
+      object-fit: cover;
+      background: rgba(8, 11, 17, 0.72);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+    }
+
+    .profit-brand strong {
+      display: block;
+      font-size: 17px;
+    }
+
+    .profit-brand small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+    }
+
+    .profit-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .profit-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+    }
+
+    .profit-form-grid .span-two {
+      grid-column: 1 / -1;
+    }
+
+    .revenue-preview {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .preview-box {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(8, 11, 17, 0.46);
+      padding: 12px;
+    }
+
+    .preview-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .preview-box strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 19px;
+      line-height: 1.05;
+    }
+
+    .profit-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .split-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .avatar-token {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(212, 154, 58, 0.32);
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(212, 154, 58, 0.2), rgba(51, 194, 180, 0.08));
+      color: #f5c774;
+      font-weight: 950;
+    }
+
+    .split-values {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .split-values strong {
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .progress-track {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .history-table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .history-row {
+      display: grid;
+      grid-template-columns: 1.25fr 0.85fr 0.75fr 0.75fr;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(8, 11, 17, 0.46);
+      padding: 11px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .history-row strong {
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .history-row.header {
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--faint);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .settlement-panel {
+      border: 1px solid rgba(51, 194, 180, 0.24);
+      background:
+        linear-gradient(135deg, rgba(51, 194, 180, 0.09), transparent 44%),
+        linear-gradient(180deg, rgba(22, 28, 40, 0.92), rgba(15, 19, 28, 0.92));
+    }
+
+    @media (max-width: 920px) {
+      .profit-shell,
+      .profit-form-grid,
+      .revenue-preview {
+        grid-template-columns: 1fr;
+      }
+
+      .profit-form-grid .span-two {
+        grid-column: auto;
+      }
+
+      .history-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .history-row.header {
+        display: none;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .profit-launch-page {
+        padding: 14px;
+      }
+
+      .profit-topline,
+      .profit-actions,
+      .split-card {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .profit-topline,
+      .split-card {
+        display: grid;
+      }
+
+      .split-values {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard profit-launch-page">
+    <header class="app-header">
+      <div>
+        <span class="eyebrow">Financeiro</span>
+        <h2>Lancamento de lucros</h2>
+        <p>Registre entradas do caixa e acompanhe a divisao entre casa e profissionais.</p>
+      </div>
+      <div class="header-actions">
+        <button id="closeCashBtn" class="icon-button" type="button">Fechar caixa</button>
+        <button id="exportBtn" class="ghost" type="button">Exportar</button>
+      </div>
+    </header>
+
+    <section class="profit-topline">
+      <div class="profit-brand">
+        <img class="profit-logo" src="logo.png" alt="Barbearia Castilho" />
+        <div>
+          <strong>Barbearia Castilho</strong>
+          <small id="periodLabel">Carregando periodo...</small>
+        </div>
+      </div>
+      <span id="cashBadge" class="badge pending">Carregando</span>
+    </section>
+
+    <section class="metric-grid span-full">
+      <article class="metric-card">
+        <span>Receita lancada</span>
+        <strong id="grossMetric">R$ 0,00</strong>
+      </article>
+      <article class="metric-card">
+        <span>Parte da casa</span>
+        <strong id="houseMetric">R$ 0,00</strong>
+      </article>
+      <article class="metric-card">
+        <span>Profissionais</span>
+        <strong id="barberMetric">R$ 0,00</strong>
+      </article>
+      <article class="metric-card">
+        <span>Lancamentos</span>
+        <strong id="entriesMetric">0</strong>
+      </article>
+    </section>
+
+    <div class="profit-shell">
+      <section class="panel">
+        <div class="panel-title">
+          <h3>Novo lancamento</h3>
+          <small>Informe o valor recebido e defina como sera feita a divisao.</small>
+        </div>
+
+        <form id="profitForm" class="form-stack">
+          <div class="profit-form-grid">
+            <label>
+              <span>Data</span>
+              <input id="entryDate" type="date" required />
+            </label>
+            <label>
+              <span>Agendamento vinculado</span>
+              <select id="appointmentSelect">
+                <option value="">Lancamento manual</option>
+              </select>
+            </label>
+            <label>
+              <span>Profissional</span>
+              <select id="barberSelect" required></select>
+            </label>
+            <label>
+              <span>Origem</span>
+              <select id="sourceSelect" required></select>
+            </label>
+            <label>
+              <span>Forma de pagamento</span>
+              <select id="paymentSelect" required>
+                <option>Pix</option>
+                <option>Cartao de debito</option>
+                <option>Cartao de credito</option>
+                <option>Dinheiro</option>
+              </select>
+            </label>
+            <label>
+              <span>Valor recebido</span>
+              <input id="amountInput" type="number" min="0" step="0.01" value="85.00" required />
+            </label>
+            <label>
+              <span>Comissao do profissional %</span>
+              <input id="commissionInput" type="number" min="0" max="100" step="0.5" value="55" required />
+            </label>
+            <label class="span-two">
+              <span>Observacoes</span>
+              <textarea id="notesInput" placeholder="Ex.: cliente pagou parte em dinheiro e parte no Pix"></textarea>
+            </label>
+          </div>
+
+          <div class="revenue-preview" aria-live="polite">
+            <div class="preview-box">
+              <span>Total</span>
+              <strong id="previewGross">R$ 85,00</strong>
+            </div>
+            <div class="preview-box">
+              <span>Profissional</span>
+              <strong id="previewBarber">R$ 46,75</strong>
+            </div>
+            <div class="preview-box">
+              <span>Casa</span>
+              <strong id="previewHouse">R$ 38,25</strong>
+            </div>
+          </div>
+
+          <div class="profit-actions">
+            <button class="primary" type="submit">Registrar lancamento</button>
+            <button id="clearButton" class="ghost" type="button">Limpar</button>
+          </div>
+          <div id="formStatus" class="status"></div>
+        </form>
+      </section>
+
+      <section class="panel settlement-panel">
+        <div class="panel-title">
+          <h3>Divisao do estabelecimento</h3>
+          <small>Resumo calculado com base nos lancamentos do periodo.</small>
+        </div>
+
+        <div id="splitList" class="list"></div>
+      </section>
+
+      <section class="panel span-full">
+        <div class="panel-title">
+          <h3>Historico recente</h3>
+          <small>Ultimos registros adicionados ao caixa financeiro.</small>
+        </div>
+        <div id="historyTable" class="history-table">
+          <div class="history-row header">
+            <span>Lancamento</span>
+            <span>Profissional</span>
+            <span>Valor</span>
+            <span>Divisao</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = location.hostname === 'localhost' && location.port && location.port !== '5000'
+      ? 'http://localhost:5000'
+      : '';
+    const tokenKey = 'barbearia_token';
+    const userKey = 'barbearia_user';
+    const localEntriesKey = 'barbearia_profit_entries';
+
+    let token = localStorage.getItem(tokenKey);
+    let user = readUser();
+    let barbers = [];
+    let services = [];
+    let appointments = [];
+    let localEntries = readLocalEntries();
+    let currentTotals = { gross: 0, house: 0, barber: 0, entries: 0 };
+
+    const money = (value) => Number(value || 0).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+
+    const $ = (id) => document.getElementById(id);
+
+    function readUser() {
+      try {
+        return JSON.parse(localStorage.getItem(userKey));
+      } catch {
+        return null;
+      }
+    }
+
+    function readLocalEntries() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(localEntriesKey));
+        return Array.isArray(saved) ? saved : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLocalEntries() {
+      localStorage.setItem(localEntriesKey, JSON.stringify(localEntries));
+    }
+
+    function today() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function shortDate(value) {
+      if (!value) return '-';
+      const raw = String(value).slice(0, 10);
+      const [year, month, day] = raw.split('-');
+      return day && month && year ? `${day}/${month}/${year}` : raw;
+    }
+
+    function setStatus(message, type = '') {
+      $('formStatus').textContent = message || '';
+      $('formStatus').className = `status ${type}`.trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    async function api(path, options = {}) {
+      const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
+      const text = await response.text();
+      const body = text ? JSON.parse(text) : null;
+
+      if (!response.ok) {
+        throw new Error(body?.message || `Erro ${response.status}`);
+      }
+
+      return body;
+    }
+
+    function ensureAdminSession() {
+      const role = String(user?.role || '').toUpperCase();
+      if (!token || role !== 'ADMIN') {
+        $('cashBadge').textContent = 'Acesso restrito';
+        $('cashBadge').className = 'badge cancelled';
+        $('splitList').innerHTML = '<article class="empty">Entre como administrador na tela principal para carregar o financeiro.</article>';
+        $('historyTable').insertAdjacentHTML('beforeend', '<article class="empty">Sem sessao administrativa ativa.</article>');
+        setStatus('Acesse o sistema principal como administrador antes de usar esta tela.', 'error');
+        $('profitForm').querySelectorAll('input, select, textarea, button').forEach((field) => {
+          if (field.id !== 'clearButton') field.disabled = true;
+        });
+        return false;
+      }
+
+      return true;
+    }
+
+    function updatePeriodLabel() {
+      const label = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      $('periodLabel').textContent = `Periodo atual: ${label}`;
+      $('cashBadge').textContent = 'Caixa aberto';
+      $('cashBadge').className = 'badge confirmed';
+      $('entryDate').value = today();
+    }
+
+    function barberById(id) {
+      return barbers.find((barber) => barber.id === id);
+    }
+
+    function commissionForBarber(id) {
+      return Number(barberById(id)?.commissionPercentage ?? 50);
+    }
+
+    function appointmentById(id) {
+      return appointments.find((appointment) => appointment.id === id);
+    }
+
+    function updatePreview() {
+      const amount = Number($('amountInput').value || 0);
+      const commission = Number($('commissionInput').value || 0);
+      const barberShare = amount * (commission / 100);
+      const houseShare = amount - barberShare;
+
+      $('previewGross').textContent = money(amount);
+      $('previewBarber').textContent = money(barberShare);
+      $('previewHouse').textContent = money(houseShare);
+    }
+
+    function updateMetrics() {
+      $('grossMetric').textContent = money(currentTotals.gross);
+      $('houseMetric').textContent = money(currentTotals.house);
+      $('barberMetric').textContent = money(currentTotals.barber);
+      $('entriesMetric').textContent = currentTotals.entries;
+    }
+
+    function completedEntries() {
+      const metaByAppointment = new Map(
+        localEntries
+          .filter((entry) => entry.appointmentId)
+          .map((entry) => [entry.appointmentId, entry])
+      );
+
+      const fromAppointments = appointments
+        .filter((appointment) => appointment.status === 'COMPLETED')
+        .map((appointment) => {
+          const meta = metaByAppointment.get(appointment.id);
+          const barberId = appointment.barberId;
+          const commission = Number(meta?.commissionPercentage ?? commissionForBarber(barberId));
+          const amount = Number(meta?.amount ?? appointment.price ?? 0);
+
+          return {
+            id: appointment.id,
+            date: appointment.date,
+            source: appointment.serviceName || 'Atendimento',
+            barberId,
+            barberName: appointment.barberName || barberById(barberId)?.name || '-',
+            amount,
+            commissionPercentage: commission,
+            paymentMethod: meta?.paymentMethod || '-',
+            notes: meta?.notes || '',
+            persisted: true
+          };
+        });
+
+      const manualEntries = localEntries.filter((entry) => !entry.appointmentId);
+      return [...manualEntries, ...fromAppointments].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    }
+
+    function calculateTotals(entries) {
+      return entries.reduce((totals, entry) => {
+        const amount = Number(entry.amount || 0);
+        const commission = Number(entry.commissionPercentage || 0);
+        const barberShare = amount * (commission / 100);
+        const houseShare = amount - barberShare;
+
+        totals.gross += amount;
+        totals.barber += barberShare;
+        totals.house += houseShare;
+        totals.entries += 1;
+        return totals;
+      }, { gross: 0, barber: 0, house: 0, entries: 0 });
+    }
+
+    function renderSplit(entries) {
+      const grouped = new Map();
+
+      entries.forEach((entry) => {
+        const id = entry.barberId || 'house';
+        const current = grouped.get(id) || {
+          barberId: id,
+          barberName: entry.barberName || 'Servico da casa',
+          amount: 0,
+          barberShare: 0,
+          houseShare: 0,
+          services: 0,
+          commissionSum: 0
+        };
+        const amount = Number(entry.amount || 0);
+        const commission = Number(entry.commissionPercentage || 0);
+
+        current.amount += amount;
+        current.barberShare += amount * (commission / 100);
+        current.houseShare += amount - (amount * (commission / 100));
+        current.services += 1;
+        current.commissionSum += commission;
+        grouped.set(id, current);
+      });
+
+      const rows = [...grouped.values()].sort((a, b) => b.amount - a.amount);
+      if (rows.length === 0) {
+        $('splitList').innerHTML = '<article class="empty">Nenhum lucro lancado ainda.</article>';
+        return;
+      }
+
+      const maxAmount = Math.max(...rows.map((row) => row.amount), 1);
+      $('splitList').innerHTML = rows.map((row) => {
+        const averageCommission = row.services ? row.commissionSum / row.services : 0;
+        const initial = row.barberName.trim().charAt(0).toUpperCase() || 'C';
+        const width = Math.max(6, Math.round((row.amount / maxAmount) * 100));
+
+        return `
+          <article class="item split-card">
+            <div class="avatar-token">${escapeHtml(initial)}</div>
+            <div>
+              <strong>${escapeHtml(row.barberName)}</strong>
+              <small>${row.services} lancamentos | Comissao media ${averageCommission.toFixed(1)}%</small>
+              <div class="progress-track"><div class="progress-fill" style="width: ${width}%"></div></div>
+            </div>
+            <div class="split-values">
+              <span>Profissional <strong>${money(row.barberShare)}</strong></span>
+              <span>Casa <strong>${money(row.houseShare)}</strong></span>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderHistory(entries) {
+      const header = $('historyTable').querySelector('.history-row.header').outerHTML;
+      const rows = entries.slice(0, 20).map((entry) => {
+        const commission = Number(entry.commissionPercentage || 0);
+        const linked = entry.persisted ? 'Sistema' : 'Manual';
+        return `
+          <article class="history-row" title="${escapeHtml(entry.paymentMethod || '')}">
+            <strong>${escapeHtml(entry.source)}<br><small>${shortDate(entry.date)} | ${linked}</small></strong>
+            <span>${escapeHtml(entry.barberName || 'Servico da casa')}</span>
+            <span>${money(entry.amount)}</span>
+            <span>${commission}% / ${(100 - commission).toFixed(1).replace('.0', '')}%</span>
+          </article>
+        `;
+      }).join('');
+
+      $('historyTable').innerHTML = rows
+        ? `${header}${rows}`
+        : `${header}<article class="empty">Nenhum lancamento encontrado.</article>`;
+    }
+
+    function renderEverything() {
+      const entries = completedEntries();
+      currentTotals = calculateTotals(entries);
+      updateMetrics();
+      renderSplit(entries);
+      renderHistory(entries);
+      populateAppointmentSelect();
+    }
+
+    function populateBarbers() {
+      const options = barbers.map((barber) => `
+        <option value="${barber.id}" data-rate="${barber.commissionPercentage}">
+          ${escapeHtml(barber.name)}
+        </option>
+      `);
+
+      $('barberSelect').innerHTML = [
+        ...options,
+        '<option value="house" data-rate="0">Servico da casa</option>'
+      ].join('');
+    }
+
+    function populateServices() {
+      const serviceOptions = services.map((service) => `
+        <option value="${service.name}" data-price="${service.price}">
+          ${escapeHtml(service.name)}
+        </option>
+      `);
+
+      $('sourceSelect').innerHTML = [
+        ...serviceOptions,
+        '<option value="Produto vendido" data-price="0">Produto vendido</option>',
+        '<option value="Pacote mensal" data-price="0">Pacote mensal</option>',
+        '<option value="Entrada avulsa" data-price="0">Entrada avulsa</option>'
+      ].join('');
+    }
+
+    function populateAppointmentSelect() {
+      const pendingAppointments = appointments.filter((appointment) => appointment.status !== 'COMPLETED');
+      const options = pendingAppointments.map((appointment) => `
+        <option value="${appointment.id}">
+          ${shortDate(appointment.date)} - ${escapeHtml(appointment.time || '').slice(0, 5)} - ${escapeHtml(appointment.customerName || 'Cliente')} - ${escapeHtml(appointment.serviceName || 'Servico')}
+        </option>
+      `);
+
+      $('appointmentSelect').innerHTML = [
+        '<option value="">Lancamento manual</option>',
+        ...options
+      ].join('');
+    }
+
+    function syncFormFromBarber() {
+      const selected = $('barberSelect').selectedOptions[0];
+      $('commissionInput').value = selected?.dataset.rate ?? 50;
+      updatePreview();
+    }
+
+    function syncFormFromService() {
+      const price = Number($('sourceSelect').selectedOptions[0]?.dataset.price || 0);
+      if (price > 0) $('amountInput').value = price.toFixed(2);
+      updatePreview();
+    }
+
+    function syncFormFromAppointment() {
+      const appointment = appointmentById($('appointmentSelect').value);
+      if (!appointment) return;
+
+      $('entryDate').value = String(appointment.date || today()).slice(0, 10);
+      $('barberSelect').value = appointment.barberId;
+      $('sourceSelect').value = appointment.serviceName || $('sourceSelect').value;
+      $('amountInput').value = Number(appointment.price || 0).toFixed(2);
+      syncFormFromBarber();
+    }
+
+    async function loadData() {
+      if (!ensureAdminSession()) return;
+
+      updatePeriodLabel();
+      setStatus('Carregando financeiro...');
+      $('splitList').innerHTML = '<article class="empty">Carregando divisao...</article>';
+
+      const [profit, allAppointments, barberRows, serviceRows] = await Promise.all([
+        api('/api/admin/profit-distribution'),
+        api('/api/admin/appointments'),
+        api('/api/admin/barbers'),
+        api('/api/services')
+      ]);
+
+      barbers = barberRows.map((barber) => {
+        const profitBarber = profit.barbers.find((item) => item.barberId === barber.id);
+        return {
+          ...barber,
+          commissionPercentage: Number(profitBarber?.commissionPercentage ?? barber.commissionPercentage ?? 50)
+        };
+      });
+      appointments = allAppointments;
+      services = serviceRows;
+
+      populateBarbers();
+      populateServices();
+      populateAppointmentSelect();
+      syncFormFromBarber();
+      syncFormFromService();
+      renderEverything();
+      setStatus('');
+    }
+
+    function buildEntry() {
+      const barberId = $('barberSelect').value;
+      const barber = barberById(barberId);
+      const commission = Number($('commissionInput').value || 0);
+
+      return {
+        id: `local-${Date.now()}`,
+        appointmentId: $('appointmentSelect').value || null,
+        date: $('entryDate').value || today(),
+        source: $('sourceSelect').value,
+        barberId,
+        barberName: barber?.name || 'Servico da casa',
+        amount: Number($('amountInput').value || 0),
+        commissionPercentage: commission,
+        paymentMethod: $('paymentSelect').value,
+        notes: $('notesInput').value.trim(),
+        createdAt: new Date().toISOString()
+      };
+    }
+
+    $('barberSelect').addEventListener('change', () => {
+      syncFormFromBarber();
+    });
+
+    $('appointmentSelect').addEventListener('change', syncFormFromAppointment);
+    $('sourceSelect').addEventListener('change', syncFormFromService);
+    $('amountInput').addEventListener('input', updatePreview);
+    $('commissionInput').addEventListener('input', updatePreview);
+
+    $('clearButton').addEventListener('click', () => {
+      $('profitForm').reset();
+      $('commissionInput').value = $('barberSelect').selectedOptions[0].dataset.rate;
+      $('formStatus').textContent = '';
+      $('formStatus').className = 'status';
+      $('entryDate').value = today();
+      syncFormFromBarber();
+      updatePreview();
+    });
+
+    $('profitForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const entry = buildEntry();
+
+      if (entry.amount <= 0) {
+        setStatus('Informe um valor recebido maior que zero.', 'error');
+        return;
+      }
+
+      try {
+        setStatus('Registrando lancamento...');
+
+        if (entry.barberId !== 'house') {
+          await api(`/api/admin/barbers/${entry.barberId}/commission`, {
+            method: 'PUT',
+            body: JSON.stringify({ commissionPercentage: entry.commissionPercentage })
+          });
+        }
+
+        if (entry.appointmentId) {
+          await api(`/api/appointments/${entry.appointmentId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: 'COMPLETED' })
+          });
+        }
+
+        localEntries = localEntries.filter((item) => item.appointmentId !== entry.appointmentId || !entry.appointmentId);
+        localEntries.unshift(entry);
+        saveLocalEntries();
+
+        await loadData();
+        setStatus(entry.appointmentId
+          ? 'Agendamento marcado como realizado e lucro atualizado.'
+          : 'Lancamento manual salvo nesta tela.',
+          'ok'
+        );
+      } catch (error) {
+        setStatus(error.message, 'error');
+      }
+    });
+
+    $('closeCashBtn').addEventListener('click', () => {
+      const entries = completedEntries();
+      const totals = calculateTotals(entries);
+      setStatus(`Caixa conferido: ${money(totals.gross)} em ${totals.entries} lancamentos.`, 'ok');
+    });
+
+    $('exportBtn').addEventListener('click', () => {
+      const lines = completedEntries().map((entry) => [
+        shortDate(entry.date),
+        entry.source,
+        entry.barberName,
+        money(entry.amount),
+        `${entry.commissionPercentage}%`,
+        entry.paymentMethod || '-'
+      ].join(' | '));
+
+      console.log(['Data | Origem | Profissional | Valor | Comissao | Pagamento', ...lines].join('\n'));
+      setStatus('Relatorio enviado para o console do navegador.', 'ok');
+    });
+
+    loadData().catch((error) => {
+      setStatus(error.message, 'error');
+      $('cashBadge').textContent = 'Erro';
+      $('cashBadge').className = 'badge cancelled';
+    });
+  </script>
+</body>
+</html>
