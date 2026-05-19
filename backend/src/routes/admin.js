@@ -300,4 +300,57 @@ router.delete('/users/:id', (req, res) => {
   });
 });
 
+router.put('/barbers/:id', (req, res) => {
+  const { id } = req.params;
+  const name = req.body.name?.trim();
+  const email = req.body.email?.trim().toLowerCase();
+  const phone = req.body.phone?.trim();
+  const specialization = req.body.specialization?.trim() || 'Barbeiro';
+
+  if (!name || !email || !phone) {
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ success: false, message: 'Invalid email format' });
+  }
+
+  if (!validatePhone(phone)) {
+    return res.status(400).json({ success: false, message: 'Invalid phone number' });
+  }
+
+  // Verificar se o email já existe em outro usuário
+  db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, id], (selectError, users) => {
+    if (selectError) {
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (users.length > 0) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    db.query(
+      'UPDATE users SET name = ?, email = ?, phone = ?, specialization = ? WHERE id = ? AND role = ?',
+      [name, email, phone, specialization, id, 'BARBER'],
+      (updateError) => {
+        if (updateError) {
+          return res.status(500).json({ success: false, message: 'Database error' });
+        }
+
+        res.json({
+          success: true,
+          barber: {
+            id,
+            name,
+            email,
+            phone,
+            specialization,
+            role: 'BARBER'
+          }
+        });
+      }
+    );
+  });
+});
+
 export default router;
