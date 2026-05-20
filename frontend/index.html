@@ -192,18 +192,21 @@
 
         <section class="panel admin-section hidden" data-admin-section="barber">
           <div class="panel-title">
-            <h3>Novo barbeiro</h3>
-            <small>Crie o acesso do profissional ao painel de barbeiro.</small>
+            <h3>Gerenciar barbeiros</h3>
+            <small>Crie, edite ou remova profissionais.</small>
           </div>
           <form id="barberForm" class="form-stack compact-form">
+            <input id="barberId" type="hidden" />
             <label><span>Nome</span><input id="barberName" type="text" required /></label>
             <label><span>E-mail</span><input id="barberEmail" type="email" required /></label>
             <label><span>Telefone</span><input id="barberPhone" type="tel" required /></label>
             <label><span>Especialidade</span><input id="barberSpecialization" type="text" placeholder="Ex.: Cortes e barba" /></label>
-            <label><span>Senha inicial</span><input id="barberPassword" type="password" required /></label>
-            <button class="primary" type="submit">Cadastrar barbeiro</button>
+            <label><span>Senha inicial</span><input id="barberPassword" type="password" /></label>
+            <button class="primary" type="submit">Salvar barbeiro</button>
+            <button id="clearBarberBtn" class="ghost" type="button">Limpar</button>
           </form>
           <div id="barberStatus" class="status"></div>
+          <div id="barberList" class="list"></div>
         </section>
 
         <section class="panel admin-section hidden" data-admin-section="services">
@@ -218,6 +221,12 @@
               <label><span>Duração</span><input id="serviceDuration" type="number" min="5" step="5" required /></label>
               <label><span>Preço</span><input id="servicePrice" type="number" min="0" step="0.01" required /></label>
             </div>
+            <label><span>Descrição</span><textarea id="serviceDescription"></textarea></label>
+            <button class="primary" type="submit">Salvar serviço</button>
+            <button id="clearServiceBtn" class="ghost" type="button">Limpar</button>
+          </form>
+          <div id="serviceStatus" class="status"></div>
+          <div id="serviceList" class="list"></div>
             <label><span>Descrição</span><textarea id="serviceDescription"></textarea></label>
             <button class="primary" type="submit">Salvar serviço</button>
             <button id="clearServiceBtn" class="ghost" type="button">Limpar</button>

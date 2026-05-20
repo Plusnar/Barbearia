@@ -13,6 +13,7 @@ const statusLabels = {
 let token = localStorage.getItem(tokenKey);
 let user = readUser();
 let servicesCache = [];
+let barbersCache = [];
 let adminAppointmentsCache = [];
 let accountOriginalParent = null;
 let accountOriginalNext = null;
@@ -216,14 +217,16 @@ async function loadBarber() {
 }
 
 async function loadAdmin() {
-  const [stats, appointments, profit, services] = await Promise.all([
+  const [stats, appointments, profit, services, barbers] = await Promise.all([
     api('/api/admin/statistics'),
     api('/api/admin/appointments'),
     api('/api/admin/profit-distribution'),
-    api('/api/services')
+    api('/api/services'),
+    api('/api/admin/barbers')
   ]);
 
   servicesCache = services;
+  barbersCache = barbers;
   adminAppointmentsCache = appointments;
   $('metricAppointments').textContent = stats.totalAppointments || 0;
   $('metricCompleted').textContent = stats.completedAppointments || 0;
@@ -231,6 +234,7 @@ async function loadAdmin() {
   $('metricCustomers').textContent = stats.totalCustomers || 0;
   renderProfit(profit);
   renderServices(services);
+  renderBarbers(barbers);
   renderAdminAppointments();
 }
 
@@ -296,9 +300,29 @@ function renderServices(services) {
       <small>${service.description || 'Sem descrição'}<br>${service.duration} minutos</small>
       <div class="item-actions">
         <button class="ghost" onclick="editService('${service.id}')">Editar</button>
+        <button class="ghost danger-text" onclick="deleteService('${service.id}')">Deletar</button>
       </div>
     </article>
   `).join('') : '<article class="empty">Nenhum serviço cadastrado.</article>';
+}
+
+function renderBarbers(barbers) {
+  $('barberList').innerHTML = barbers.length ? barbers.map(barber => `
+    <article class="item">
+      <div class="item-head">
+        <strong>${barber.name}</strong>
+        <span class="badge confirmed">${barber.email}</span>
+      </div>
+      <small>
+        ${barber.specialization || 'Barbeiro'}<br>
+        Telefone: ${barber.phone}
+      </small>
+      <div class="item-actions">
+        <button class="ghost" onclick="editBarber('${barber.id}')">Editar</button>
+        <button class="ghost danger-text" onclick="deleteBarber('${barber.id}')">Deletar</button>
+      </div>
+    </article>
+  `).join('') : '<article class="empty">Nenhum barbeiro cadastrado.</article>';
 }
 
 function renderAdminAppointments() {
@@ -342,6 +366,53 @@ function clearServiceForm() {
   $('serviceId').value = '';
 }
 
+async function deleteService(id) {
+  if (!confirm('Tem certeza que deseja deletar este serviço?')) return;
+  
+  try {
+    setStatus($('serviceStatus'), 'Deletando serviço...');
+    await api(`/api/services/${id}`, {
+      method: 'DELETE'
+    });
+    setStatus($('serviceStatus'), 'Serviço deletado.', 'ok');
+    await loadAdmin();
+  } catch (error) {
+    setStatus($('serviceStatus'), error.message, 'error');
+  }
+}
+
+function editBarber(id) {
+  const barber = barbersCache.find(item => item.id === id);
+  if (!barber) return;
+  $('barberId').value = barber.id;
+  $('barberName').value = barber.name;
+  $('barberEmail').value = barber.email;
+  $('barberPhone').value = barber.phone;
+  $('barberSpecialization').value = barber.specialization || '';
+  $('barberPassword').value = '';
+  $('barberName').focus();
+}
+
+function clearBarberForm() {
+  $('barberForm').reset();
+  $('barberId').value = '';
+}
+
+async function deleteBarber(id) {
+  if (!confirm('Tem certeza que deseja deletar este barbeiro? Todos os agendamentos serão perdidos.')) return;
+  
+  try {
+    setStatus($('barberStatus'), 'Deletando barbeiro...');
+    await api(`/api/admin/users/${id}`, {
+      method: 'DELETE'
+    });
+    setStatus($('barberStatus'), 'Barbeiro deletado.', 'ok');
+    await loadAdmin();
+  } catch (error) {
+    setStatus($('barberStatus'), error.message, 'error');
+  }
+}
+
 function logout() {
   token = null;
   user = null;
@@ -358,6 +429,7 @@ $('refreshBtn').addEventListener('click', () => loadDashboard());
 $('logoutBtn').addEventListener('click', logout);
 $('statusFilter').addEventListener('change', renderAdminAppointments);
 $('clearServiceBtn').addEventListener('click', clearServiceForm);
+$('clearBarberBtn').addEventListener('click', clearBarberForm);
 $('dateInput').addEventListener('change', applyBusinessHours);
 document.querySelectorAll('.admin-tab').forEach(button => {
   button.addEventListener('click', () => switchAdminTab(button.dataset.adminTab));
@@ -427,7 +499,36 @@ $('passwordForm').addEventListener('submit', async (event) => {
 
 $('barberForm').addEventListener('submit', async (event) => {
   event.preventDefault();
-  setStatus($('barberStatus'), 'Criando barbeiro...');
+  setStatus($('barberStatus'), 'Salvando barbeiro...');
+  const id = $('barberId').value;
+  
+  if (id && !$('barberPassword').value) {
+    // Edição sem trocar senha
+    try {
+      await api(`/api/admin/barbers/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: $('barberName').value.trim(),
+          email: $('barberEmail').value.trim(),
+          phone: $('barberPhone').value.trim(),
+          specialization: $('barberSpecialization').value.trim()
+        })
+      });
+      clearBarberForm();
+      setStatus($('barberStatus'), 'Barbeiro atualizado com sucesso.', 'ok');
+      await loadAdmin();
+    } catch (error) {
+      setStatus($('barberStatus'), error.message, 'error');
+    }
+    return;
+  }
+  
+  if (!$('barberPassword').value) {
+    setStatus($('barberStatus'), 'Senha é obrigatória para novo barbeiro.', 'error');
+    return;
+  }
+  
+  // Criação novo barbeiro
   try {
     await api('/api/admin/barbers', {
       method: 'POST',
@@ -439,7 +540,7 @@ $('barberForm').addEventListener('submit', async (event) => {
         password: $('barberPassword').value
       })
     });
-    $('barberForm').reset();
+    clearBarberForm();
     setStatus($('barberStatus'), 'Barbeiro cadastrado com sucesso.', 'ok');
     await loadAdmin();
   } catch (error) {
@@ -508,5 +609,8 @@ $('serviceForm').addEventListener('submit', async (event) => {
 window.updateStatus = updateStatus;
 window.saveCommission = saveCommission;
 window.editService = editService;
+window.deleteService = deleteService;
+window.editBarber = editBarber;
+window.deleteBarber = deleteBarber;
 
 renderSession();
