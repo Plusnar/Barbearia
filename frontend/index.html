@@ -39,6 +39,7 @@
             <input id="loginPassword" type="password" autocomplete="current-password" required />
           </label>
           <button class="primary" type="submit">Entrar</button>
+          <button id="forgotPasswordBtn" class="text-button" type="button">Esqueci minha senha</button>
         </form>
 
         <form id="registerForm" class="form-stack hidden">
@@ -79,6 +80,19 @@
             </div>
           </label>
           <button class="primary" type="submit">Criar conta</button>
+        </form>
+
+        <form id="recoveryForm" class="form-stack hidden">
+          <div class="auth-copy">
+            <strong>Recuperar senha</strong>
+            <small>Informe o e-mail cadastrado para receber as instrucoes quando o envio estiver configurado.</small>
+          </div>
+          <label>
+            <span>E-mail da conta</span>
+            <input id="recoveryEmail" type="email" autocomplete="email" required />
+          </label>
+          <button class="primary" type="submit">Enviar recuperacao</button>
+          <button id="backToLoginBtn" class="text-button" type="button">Voltar para entrar</button>
         </form>
         <div id="authStatus" class="status"></div>
       </section>

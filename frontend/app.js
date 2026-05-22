@@ -117,10 +117,13 @@ async function api(path, options = {}) {
 
 function switchAuth(mode) {
   const login = mode === 'login';
+  const register = mode === 'register';
+  const recovery = mode === 'recover';
   $('loginTab').classList.toggle('active', login);
-  $('registerTab').classList.toggle('active', !login);
+  $('registerTab').classList.toggle('active', register);
   $('loginForm').classList.toggle('hidden', !login);
-  $('registerForm').classList.toggle('hidden', login);
+  $('registerForm').classList.toggle('hidden', !register);
+  $('recoveryForm').classList.toggle('hidden', !recovery);
   setStatus($('authStatus'), '');
 }
 
@@ -437,6 +440,11 @@ function logout() {
 
 $('loginTab').addEventListener('click', () => switchAuth('login'));
 $('registerTab').addEventListener('click', () => switchAuth('register'));
+$('forgotPasswordBtn').addEventListener('click', () => {
+  $('recoveryEmail').value = $('loginEmail').value.trim();
+  switchAuth('recover');
+});
+$('backToLoginBtn').addEventListener('click', () => switchAuth('login'));
 $('welcomeScreen').addEventListener('click', startApp);
 $('welcomeScreen').addEventListener('touchstart', startApp, { once: true });
 $('refreshBtn').addEventListener('click', () => loadDashboard());
@@ -496,6 +504,22 @@ $('registerForm').addEventListener('submit', async (event) => {
     $('registerForm').reset();
     switchAuth('login');
     setStatus($('authStatus'), 'Conta criada com sucesso. Entre com seu e-mail e senha.', 'ok');
+  } catch (error) {
+    setStatus($('authStatus'), error.message, 'error');
+  }
+});
+
+$('recoveryForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  setStatus($('authStatus'), 'Preparando recuperacao...');
+  try {
+    await api('/api/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: $('recoveryEmail').value.trim()
+      })
+    });
+    setStatus($('authStatus'), 'Se o e-mail estiver cadastrado, as instrucoes serao enviadas quando o envio estiver configurado.', 'ok');
   } catch (error) {
     setStatus($('authStatus'), error.message, 'error');
   }

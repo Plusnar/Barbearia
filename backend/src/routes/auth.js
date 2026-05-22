@@ -111,4 +111,18 @@ router.post('/login', (req, res) => {
   });
 });
 
+router.post('/forgot-password', (req, res) => {
+  const email = req.body.email?.trim().toLowerCase();
+
+  if (!email || !validateEmail(email)) {
+    return res.status(400).json({ success: false, message: 'Valid email required' });
+  }
+
+  // Email delivery will be connected later. Keep the response generic to avoid account enumeration.
+  res.json({
+    success: true,
+    message: 'If the email is registered, recovery instructions will be sent.'
+  });
+});
+
 export default router;
