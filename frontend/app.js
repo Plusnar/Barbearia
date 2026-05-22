@@ -40,6 +40,20 @@ function setStatus(target, message, type = '') {
   target.className = `status ${type}`.trim();
 }
 
+function setupPasswordToggles() {
+  document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const input = $(button.dataset.togglePassword);
+      if (!input) return;
+
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      button.setAttribute('aria-label', showing ? 'Mostrar senha' : 'Ocultar senha');
+      button.setAttribute('title', showing ? 'Mostrar senha' : 'Ocultar senha');
+    });
+  });
+}
+
 function money(value) {
   return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
@@ -459,6 +473,14 @@ $('loginForm').addEventListener('submit', async (event) => {
 $('registerForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   setStatus($('authStatus'), 'Criando conta...');
+  const password = $('registerPassword').value;
+  const confirmPassword = $('registerConfirmPassword').value;
+
+  if (password !== confirmPassword) {
+    setStatus($('authStatus'), 'As senhas nao coincidem.', 'error');
+    return;
+  }
+
   try {
     await api('/api/auth/register', {
       method: 'POST',
@@ -466,7 +488,7 @@ $('registerForm').addEventListener('submit', async (event) => {
         name: $('registerName').value.trim(),
         email: $('registerEmail').value.trim(),
         phone: $('registerPhone').value.trim(),
-        password: $('registerPassword').value
+        password
       })
     });
     $('loginEmail').value = $('registerEmail').value.trim();
@@ -613,4 +635,5 @@ window.deleteService = deleteService;
 window.editBarber = editBarber;
 window.deleteBarber = deleteBarber;
 
+setupPasswordToggles();
 renderSession();
