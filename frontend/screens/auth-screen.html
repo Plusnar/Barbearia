@@ -1,0 +1,80 @@
+<section id="authScreen" class="auth-screen">
+  <div class="brand-panel">
+    <div class="brand-mark">B</div>
+    <h1>Barbearia Castilho</h1>
+  </div>
+
+  <section class="auth-card">
+    <div class="tabs">
+      <button id="loginTab" class="tab active" type="button">Entrar</button>
+      <button id="registerTab" class="tab" type="button">Criar conta</button>
+    </div>
+
+    <form id="loginForm" class="form-stack">
+      <label>
+        <span>E-mail</span>
+        <input id="loginEmail" type="email" autocomplete="email" required />
+      </label>
+      <label>
+        <span>Senha</span>
+        <input id="loginPassword" type="password" autocomplete="current-password" required />
+      </label>
+      <button class="primary" type="submit">Entrar</button>
+      <button id="forgotPasswordBtn" class="text-button" type="button">Esqueci minha senha</button>
+    </form>
+
+    <form id="registerForm" class="form-stack hidden">
+      <label>
+        <span>Nome completo</span>
+        <input id="registerName" type="text" autocomplete="name" required />
+      </label>
+      <label>
+        <span>E-mail</span>
+        <input id="registerEmail" type="email" autocomplete="email" required />
+      </label>
+      <label>
+        <span>Telefone</span>
+        <input id="registerPhone" type="tel" placeholder="(11) 99999-9999" required />
+      </label>
+      <label>
+        <span>Senha</span>
+        <div class="password-field">
+          <input id="registerPassword" type="password" autocomplete="new-password" required />
+          <button class="password-toggle" type="button" data-toggle-password="registerPassword" aria-label="Mostrar senha" title="Mostrar senha">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+      </label>
+      <label>
+        <span>Confirmar senha</span>
+        <div class="password-field">
+          <input id="registerConfirmPassword" type="password" autocomplete="new-password" required />
+          <button class="password-toggle" type="button" data-toggle-password="registerConfirmPassword" aria-label="Mostrar confirmacao de senha" title="Mostrar senha">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+      </label>
+      <button class="primary" type="submit">Criar conta</button>
+    </form>
+
+    <form id="recoveryForm" class="form-stack hidden">
+      <div class="auth-copy">
+        <strong>Recuperar senha</strong>
+        <small>Informe o e-mail cadastrado para receber as instrucoes quando o envio estiver configurado.</small>
+      </div>
+      <label>
+        <span>E-mail da conta</span>
+        <input id="recoveryEmail" type="email" autocomplete="email" required />
+      </label>
+      <button class="primary" type="submit">Enviar recuperacao</button>
+      <button id="backToLoginBtn" class="text-button" type="button">Voltar para entrar</button>
+    </form>
+    <div id="authStatus" class="status"></div>
+  </section>
+</section>

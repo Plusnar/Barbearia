@@ -1,0 +1,85 @@
+<div id="adminView" class="view-grid hidden">
+  <section class="metric-grid span-full">
+    <article class="metric-card"><span>Agendamentos</span><strong id="metricAppointments">0</strong></article>
+    <article class="metric-card"><span>Cortes feitos</span><strong id="metricCompleted">0</strong></article>
+    <article class="metric-card"><span>Receita</span><strong id="metricRevenue">R$ 0,00</strong></article>
+    <article class="metric-card"><span>Clientes</span><strong id="metricCustomers">0</strong></article>
+  </section>
+
+  <nav class="admin-tabs span-full" aria-label="Categorias do painel administrativo">
+    <button class="admin-tab active" type="button" data-admin-tab="account">Minha conta</button>
+    <button class="admin-tab" type="button" data-admin-tab="profit">Lucro</button>
+    <button class="admin-tab" type="button" data-admin-tab="barber">Novo barbeiro</button>
+    <button class="admin-tab" type="button" data-admin-tab="services">Serviços</button>
+    <button class="admin-tab" type="button" data-admin-tab="agenda">Agenda</button>
+  </nav>
+
+  <section class="panel admin-section hidden" data-admin-section="account">
+    <div id="adminAccountMount"></div>
+  </section>
+
+  <section class="panel admin-section" data-admin-section="profit">
+    <div class="panel-title">
+      <h3>Lucro por barbeiro</h3>
+      <small>Ajuste comissão individual e acompanhe a divisão.</small>
+    </div>
+    <div id="profitSummary" class="summary-row"></div>
+    <div id="profitList" class="list"></div>
+  </section>
+
+  <section class="panel admin-section hidden" data-admin-section="barber">
+    <div class="panel-title">
+      <h3>Gerenciar barbeiros</h3>
+      <small>Crie, edite ou remova profissionais.</small>
+    </div>
+    <form id="barberForm" class="form-stack compact-form">
+      <input id="barberId" type="hidden" />
+      <label><span>Nome</span><input id="barberName" type="text" required /></label>
+      <label><span>E-mail</span><input id="barberEmail" type="email" required /></label>
+      <label><span>Telefone</span><input id="barberPhone" type="tel" required /></label>
+      <label><span>Especialidade</span><input id="barberSpecialization" type="text" placeholder="Ex.: Cortes e barba" /></label>
+      <label><span>Senha inicial</span><input id="barberPassword" type="password" /></label>
+      <button class="primary" type="submit">Salvar barbeiro</button>
+      <button id="clearBarberBtn" class="ghost" type="button">Limpar</button>
+    </form>
+    <div id="barberStatus" class="status"></div>
+    <div id="barberList" class="list"></div>
+  </section>
+
+  <section class="panel admin-section hidden" data-admin-section="services">
+    <div class="panel-title">
+      <h3>Serviços</h3>
+      <small>Cadastre e edite preços usados nos agendamentos.</small>
+    </div>
+    <form id="serviceForm" class="form-stack compact-form">
+      <input id="serviceId" type="hidden" />
+      <label><span>Nome</span><input id="serviceName" type="text" required /></label>
+      <div class="two-cols">
+        <label><span>Duração</span><input id="serviceDuration" type="number" min="5" step="5" required /></label>
+        <label><span>Preço</span><input id="servicePrice" type="number" min="0" step="0.01" required /></label>
+      </div>
+      <label><span>Descrição</span><textarea id="serviceDescription"></textarea></label>
+      <button class="primary" type="submit">Salvar serviço</button>
+      <button id="clearServiceBtn" class="ghost" type="button">Limpar</button>
+    </form>
+    <div id="serviceStatus" class="status"></div>
+    <div id="serviceList" class="list"></div>
+  </section>
+
+  <section class="panel span-full admin-section hidden" data-admin-section="agenda">
+    <div class="panel-title">
+      <h3>Agenda geral</h3>
+      <small>Controle todos os atendimentos da barbearia.</small>
+    </div>
+    <div class="filter-row">
+      <select id="statusFilter">
+        <option value="">Todos</option>
+        <option value="PENDING">Pendentes</option>
+        <option value="CONFIRMED">Confirmados</option>
+        <option value="COMPLETED">Concluídos</option>
+        <option value="CANCELLED">Cancelados</option>
+      </select>
+    </div>
+    <div id="adminAppointments" class="list"></div>
+  </section>
+</div>

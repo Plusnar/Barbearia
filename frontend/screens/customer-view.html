@@ -1,0 +1,42 @@
+<div id="customerView" class="view-grid hidden">
+  <section class="panel">
+    <div class="panel-title">
+      <h3>Novo agendamento</h3>
+      <small>Escolha serviço, barbeiro e horário.</small>
+    </div>
+    <form id="bookingForm" class="form-stack">
+      <label>
+        <span>Serviço</span>
+        <select id="serviceSelect" required></select>
+      </label>
+      <label>
+        <span>Barbeiro</span>
+        <select id="barberSelect" required></select>
+      </label>
+      <div class="two-cols">
+        <label>
+          <span>Data</span>
+          <input id="dateInput" type="date" required />
+        </label>
+        <label>
+          <span>Horário</span>
+          <input id="timeSelect" type="time" step="60" required />
+        </label>
+      </div>
+      <label>
+        <span>Observações</span>
+        <textarea id="notesInput" placeholder="Ex.: corte baixo, barba desenhada"></textarea>
+      </label>
+      <button class="primary" type="submit">Agendar</button>
+    </form>
+    <div id="bookingStatus" class="status"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">
+      <h3>Meus horários</h3>
+      <small>Acompanhe confirmação e conclusão.</small>
+    </div>
+    <div id="customerAppointments" class="list"></div>
+  </section>
+</div>

@@ -1,0 +1,41 @@
+<section id="dashboardScreen" class="dashboard hidden">
+  <header class="app-header">
+    <div>
+      <span id="roleBadge" class="eyebrow">Conta</span>
+      <h2 id="pageTitle">Dashboard</h2>
+      <p id="pageSubtitle">Dados conectados ao TiDB Cloud.</p>
+    </div>
+    <div class="header-actions">
+      <button id="refreshBtn" class="icon-button" type="button" title="Atualizar">Atualizar</button>
+      <button id="logoutBtn" class="ghost danger-text" type="button">Sair</button>
+    </div>
+  </header>
+
+  <section class="session-strip">
+    <div>
+      <strong id="sessionName">Usuario</strong>
+      <small id="sessionInfo"></small>
+    </div>
+  </section>
+
+  <section id="accountPanel" class="panel account-panel">
+    <div class="panel-title">
+      <h3>Minha conta</h3>
+      <small>Segurança da conta e acesso ao painel.</small>
+    </div>
+    <form id="passwordForm" class="form-stack password-form">
+      <label>
+        <span>Senha atual</span>
+        <input id="currentPassword" type="password" autocomplete="current-password" required />
+      </label>
+      <label>
+        <span>Nova senha</span>
+        <input id="newPassword" type="password" autocomplete="new-password" required />
+      </label>
+      <button class="ghost" type="submit">Mudar senha</button>
+    </form>
+    <div id="passwordStatus" class="status"></div>
+  </section>
+
+  <!-- Views por role serão carregadas aqui -->
+</section>
