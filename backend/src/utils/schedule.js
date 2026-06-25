@@ -10,19 +10,7 @@ export const queryAsync = (connection, sql, params = []) => new Promise((resolve
   });
 });
 
-export const ensureScheduleTable = (connection = db) => queryAsync(
-  connection,
-  `CREATE TABLE IF NOT EXISTS barber_working_hours (
-    barber_id VARCHAR(36) NOT NULL,
-    day_of_week TINYINT NOT NULL,
-    start_time TIME NOT NULL,
-    end_time TIME NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (barber_id, day_of_week),
-    INDEX idx_barber_working_hours_day (day_of_week),
-    FOREIGN KEY (barber_id) REFERENCES users(id) ON DELETE CASCADE
-  )`
-);
+export const ensureScheduleTable = () => Promise.resolve();
 
 export const timeToMinutes = (time) => {
   const [hours, minutes] = String(time).slice(0, 5).split(':').map(Number);

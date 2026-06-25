@@ -19,22 +19,26 @@ export function readUser() {
 
 function placeAccountPanel(role) {
   const accountPanel = $('accountPanel');
-  const adminMount = $('adminAccountMount');
+  const customerMount = $('accountPanelMount');
+  const adminContent = $('adminModuleContent');
+
+  if (!accountPanel) return;
 
   if (!state.accountOriginalParent) {
-    state.accountOriginalParent = accountPanel.parentNode;
-    state.accountOriginalNext = accountPanel.nextSibling;
+    state.accountOriginalParent = adminContent || accountPanel.parentNode;
   }
 
   if (role === 'ADMIN') {
-    adminMount.appendChild(accountPanel);
-    accountPanel.classList.remove('account-panel');
+    if (adminContent && accountPanel.parentNode !== adminContent) {
+      adminContent.insertBefore(accountPanel, adminContent.firstChild);
+    }
     return;
   }
 
-  if (accountPanel.parentNode !== state.accountOriginalParent) {
-    state.accountOriginalParent.insertBefore(accountPanel, state.accountOriginalNext);
+  if (customerMount && accountPanel.parentNode !== customerMount) {
+    customerMount.appendChild(accountPanel);
   }
+  accountPanel.classList.remove('hidden');
   accountPanel.classList.add('account-panel');
 }
 
@@ -55,17 +59,24 @@ export function renderSession() {
   $('sessionName').textContent = state.user.name || 'Usuário';
   $('sessionInfo').textContent = `${state.user.email || ''} | ${role}`;
   $('roleBadge').textContent = role === 'ADMIN' ? 'Administrador' : role === 'BARBER' ? 'Barbeiro' : 'Cliente';
-  $('pageTitle').textContent = role === 'ADMIN' ? 'Painel administrativo' : role === 'BARBER' ? 'Agenda do barbeiro' : 'Agendar corte';
-  $('pageSubtitle').textContent = role === 'ADMIN'
-    ? 'Controle produção, comissões, serviços e agenda.'
-    : role === 'BARBER'
+
+  if (role === 'ADMIN') {
+    $('pageTitle').textContent = 'Painel administrativo';
+    $('pageSubtitle').textContent = 'Escolha um módulo para gerenciar a barbearia.';
+  } else {
+    $('pageTitle').textContent = role === 'BARBER' ? 'Agenda do barbeiro' : 'Agendar corte';
+    $('pageSubtitle').textContent = role === 'BARBER'
       ? 'Confirme presença e marque cortes realizados.'
       : '';
+  }
 
   $('customerView').classList.toggle('hidden', role !== 'CUSTOMER');
   $('barberView').classList.toggle('hidden', role !== 'BARBER');
   $('adminView').classList.toggle('hidden', role !== 'ADMIN');
   placeAccountPanel(role);
+  if (role === 'ADMIN') {
+    import('../admin/admin-navigation.js').then(({ initAdminNavigation }) => initAdminNavigation());
+  }
   syncCustomerAutoRefresh(role);
   loadDashboardFn?.();
 }

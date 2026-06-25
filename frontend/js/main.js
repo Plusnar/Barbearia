@@ -1,16 +1,19 @@
 import { api } from './api-client.js';
-import { loadDashboard, switchAdminTab } from './admin/admin-navigation.js';
+import { loadDashboard, openAdminModule, showAdminHub } from './admin/admin-navigation.js';
 import { renderAdminAppointments, updateStatus } from './admin/appointments-list.js';
 import {
   clearBarberForm,
   deleteBarber,
   editBarber,
+  openBarberSchedule,
   submitBarberForm
 } from './admin/barbers-manager.js';
+import { saveBarberSchedule, setupBarberSchedulePanel } from './admin/barber-schedule.js';
 import {
   clearProfitForm,
   deleteProfitEntry,
   renderProfitPanel,
+  saveCommission,
   submitProfitForm,
   syncProfitFormFromAppointment,
   syncProfitFormFromBarber,
@@ -26,12 +29,18 @@ import {
 import { setupPasswordToggles, startApp, switchAuth } from './auth/auth-forms.js';
 import { logout, renderSession, setLoadDashboard } from './auth/session.js';
 import { submitBookingForm } from './customer/booking-form.js';
+import { refreshBookingBarbers, refreshBookingTimes } from './customer/availability.js';
 import { tokenKey, userKey } from './config.js';
 import { $ } from './dom.js';
 import { state } from './state.js';
 import { setStatus } from './ui/status.js';
 import { showToast } from './ui/toast.js';
-import { applyBusinessHours } from './utils/schedule.js';
+
+const refreshBookingAvailability = () => {
+  refreshBookingTimes().catch((error) => {
+    console.error('Failed to refresh booking times:', error.message);
+  });
+};
 
 setLoadDashboard(loadDashboard);
 
@@ -61,10 +70,17 @@ $('profitClearPeriodFilterBtn').addEventListener('click', () => {
 $('profitClearButton').addEventListener('click', clearProfitForm);
 $('clearServiceBtn').addEventListener('click', clearServiceForm);
 $('clearBarberBtn').addEventListener('click', clearBarberForm);
-$('dateInput').addEventListener('change', applyBusinessHours);
-$('serviceSelect').addEventListener('change', applyBusinessHours);
-document.querySelectorAll('.admin-tab').forEach(button => {
-  button.addEventListener('click', () => switchAdminTab(button.dataset.adminTab));
+$('saveBarberScheduleBtn').addEventListener('click', saveBarberSchedule);
+$('dateInput').addEventListener('change', refreshBookingAvailability);
+$('serviceSelect').addEventListener('change', refreshBookingAvailability);
+$('timeSelect').addEventListener('change', () => {
+  refreshBookingBarbers().catch((error) => {
+    console.error('Failed to refresh booking barbers:', error.message);
+  });
+});
+$('adminBackBtn').addEventListener('click', showAdminHub);
+document.querySelectorAll('.admin-module-card').forEach((button) => {
+  button.addEventListener('click', () => openAdminModule(button.dataset.adminModule));
 });
 
 $('loginForm').addEventListener('submit', async (event) => {
@@ -184,8 +200,11 @@ window.updateStatus = updateStatus;
 window.editService = editService;
 window.deleteService = deleteService;
 window.editBarber = editBarber;
+window.openBarberSchedule = openBarberSchedule;
 window.deleteBarber = deleteBarber;
 window.deleteProfitEntry = deleteProfitEntry;
+window.saveCommission = saveCommission;
 
 setupPasswordToggles();
+setupBarberSchedulePanel();
 renderSession();

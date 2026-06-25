@@ -42,6 +42,11 @@ const validateDatabaseEnv = () => {
 };
 
 const loadCaCert = () => {
+  if (process.env.DATABASE_CA) {
+    console.log('Database CA certificate loaded from DATABASE_CA env');
+    return process.env.DATABASE_CA.replace(/\\n/g, '\n');
+  }
+
   const caPaths = [
     process.env.DATABASE_CA_PATH,
     path.resolve(__dirname, '../../ca.pem'),

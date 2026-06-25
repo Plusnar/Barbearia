@@ -132,30 +132,13 @@
         </div>
       </section>
 
-      <section id="accountPanel" class="panel account-panel">
-        <div class="panel-title">
-          <h3>Minha conta</h3>
-          <small>Segurança da conta e acesso ao painel.</small>
-        </div>
-        <form id="passwordForm" class="form-stack password-form">
-          <label>
-            <span>Senha atual</span>
-            <input id="currentPassword" type="password" autocomplete="current-password" required />
-          </label>
-          <label>
-            <span>Nova senha</span>
-            <input id="newPassword" type="password" autocomplete="new-password" required />
-          </label>
-          <button class="ghost" type="submit">Mudar senha</button>
-        </form>
-        <div id="passwordStatus" class="status"></div>
-      </section>
+      <div id="accountPanelMount"></div>
 
       <div id="customerView" class="view-grid hidden">
         <section class="panel">
           <div class="panel-title">
             <h3>Novo agendamento</h3>
-            <small>Escolha serviço, barbeiro e horário.</small>
+            <small>Escolha serviço, data, horário e barbeiro disponível.</small>
           </div>
           <form id="bookingForm" class="form-stack">
             <label>
@@ -163,19 +146,21 @@
               <select id="serviceSelect" required></select>
             </label>
             <label>
-              <span>Barbeiro</span>
-              <select id="barberSelect" required></select>
+              <span>Data</span>
+              <input id="dateInput" type="date" required />
             </label>
-            <div class="two-cols">
-              <label>
-                <span>Data</span>
-                <input id="dateInput" type="date" required />
-              </label>
-              <label>
-                <span>Horário</span>
-                <input id="timeSelect" type="time" step="60" required />
-              </label>
-            </div>
+            <label>
+              <span>Horário</span>
+              <select id="timeSelect" required disabled>
+                <option value="">Selecione serviço e data</option>
+              </select>
+            </label>
+            <label>
+              <span>Barbeiro</span>
+              <select id="barberSelect" required disabled>
+                <option value="">Selecione um horário</option>
+              </select>
+            </label>
             <label>
               <span>Observações</span>
               <textarea id="notesInput" placeholder="Ex.: corte baixo, barba desenhada"></textarea>
@@ -217,19 +202,56 @@
           <article class="metric-card"><span>Clientes</span><strong id="metricCustomers">0</strong></article>
         </section>
 
-        <nav class="admin-tabs span-full" aria-label="Categorias do painel administrativo">
-          <button class="admin-tab active" type="button" data-admin-tab="account">Minha conta</button>
-          <button class="admin-tab" type="button" data-admin-tab="profit">Financeiro</button>
-          <button class="admin-tab" type="button" data-admin-tab="barber">Novo barbeiro</button>
-          <button class="admin-tab" type="button" data-admin-tab="services">Serviços</button>
-          <button class="admin-tab" type="button" data-admin-tab="agenda">Agenda</button>
-        </nav>
-
-        <section class="panel admin-section hidden" data-admin-section="account">
-          <div id="adminAccountMount"></div>
+        <section id="adminModuleHub" class="admin-module-hub span-full" aria-label="Menu do painel administrativo">
+          <button class="admin-module-card" type="button" data-admin-module="account">
+            <strong>Minha conta</strong>
+            <small>Senha e segurança do acesso.</small>
+          </button>
+          <button class="admin-module-card" type="button" data-admin-module="profit">
+            <strong>Financeiro</strong>
+            <small>Lançamentos, divisão e comissões.</small>
+          </button>
+          <button class="admin-module-card" type="button" data-admin-module="barber">
+            <strong>Barbeiros</strong>
+            <small>Cadastro, edição e expediente.</small>
+          </button>
+          <button class="admin-module-card" type="button" data-admin-module="services">
+            <strong>Serviços</strong>
+            <small>Preços e duração dos cortes.</small>
+          </button>
+          <button class="admin-module-card" type="button" data-admin-module="agenda">
+            <strong>Agenda</strong>
+            <small>Todos os atendimentos da barbearia.</small>
+          </button>
         </section>
 
-        <section class="admin-section profit-launch-section" data-admin-section="profit">
+        <div id="adminModuleToolbar" class="admin-module-toolbar span-full hidden">
+          <button id="adminBackBtn" class="ghost" type="button">Voltar ao menu</button>
+          <h3 id="adminModuleTitle">Módulo</h3>
+        </div>
+
+        <div id="adminModuleContent" class="admin-module-content span-full hidden">
+
+        <section id="accountPanel" class="panel account-panel admin-section hidden" data-admin-section="account">
+            <div class="panel-title">
+              <h3>Minha conta</h3>
+              <small>Segurança da conta e acesso ao painel.</small>
+            </div>
+            <form id="passwordForm" class="form-stack password-form">
+              <label>
+                <span>Senha atual</span>
+                <input id="currentPassword" type="password" autocomplete="current-password" required />
+              </label>
+              <label>
+                <span>Nova senha</span>
+                <input id="newPassword" type="password" autocomplete="new-password" required />
+              </label>
+              <button class="ghost" type="submit">Mudar senha</button>
+            </form>
+            <div id="passwordStatus" class="status"></div>
+        </section>
+
+        <section class="admin-section profit-launch-section hidden" data-admin-section="profit">
           <div class="profit-section-header">
             <div>
               <span class="eyebrow">Financeiro</span>
@@ -315,6 +337,11 @@
               </div>
               <div id="profitPeriodFilterStatus" class="status"></div>
               <div id="profitSplitList" class="list"></div>
+              <div class="panel-title panel-title-spaced">
+                <h3>Comissões por profissional</h3>
+                <small>Percentual padrão usado nos lançamentos financeiros.</small>
+              </div>
+              <div id="profitCommissionList" class="list"></div>
             </section>
 
             <section class="panel span-full">
@@ -349,6 +376,15 @@
             <button class="primary" type="submit">Salvar barbeiro</button>
             <button id="clearBarberBtn" class="ghost" type="button">Limpar</button>
           </form>
+          <section id="barberSchedulePanel" class="panel schedule-panel hidden">
+            <div class="panel-title">
+              <h3>Expediente de atendimento</h3>
+              <small>Defina os dias e horários em que este profissional atende.</small>
+            </div>
+            <div id="barberScheduleFields"></div>
+            <button id="saveBarberScheduleBtn" class="primary" type="button">Salvar horários</button>
+            <div id="barberScheduleStatus" class="status"></div>
+          </section>
           <div id="barberStatus" class="status"></div>
           <div id="barberList" class="list"></div>
         </section>
@@ -389,6 +425,8 @@
           </div>
           <div id="adminAppointments" class="list"></div>
         </section>
+
+        </div>
       </div>
     </section>
   </main>

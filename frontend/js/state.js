@@ -18,5 +18,6 @@ export const state = {
   profitCurrentTotals: { gross: 0, house: 0, barber: 0, entries: 0 },
   accountOriginalParent: null,
   accountOriginalNext: null,
-  customerRefreshTimer: null
+  customerRefreshTimer: null,
+  customerVisibilityHandler: null
 };

@@ -603,38 +603,65 @@ label span {
   gap: 14px;
 }
 
-.admin-tabs {
+.admin-module-hub {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  padding: 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: rgba(5, 7, 12, 0.52);
-  backdrop-filter: blur(16px);
+  gap: 12px;
 }
 
-.admin-tab {
-  min-height: 42px;
-  border: 1px solid transparent;
-  border-radius: 7px;
+.admin-module-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 96px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.045);
-  color: var(--muted);
-  padding: 9px 10px;
-  font-size: 12px;
-  font-weight: 900;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
   transition: color 180ms var(--ease), background 180ms var(--ease), border-color 180ms var(--ease), transform 180ms var(--ease);
 }
 
-.admin-tab:hover {
-  color: var(--ink);
-  border-color: var(--line-strong);
+.admin-module-card strong {
+  font-size: 15px;
+  font-weight: 900;
 }
 
-.admin-tab.active {
-  background: linear-gradient(135deg, rgba(212, 154, 58, 0.95), rgba(186, 113, 34, 0.95));
-  color: #140f08;
-  box-shadow: 0 12px 26px rgba(212, 154, 58, 0.22);
+.admin-module-card small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.admin-module-card:hover {
+  border-color: var(--line-strong);
+  background: rgba(212, 154, 58, 0.08);
+  transform: translateY(-1px);
+}
+
+.admin-module-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0 8px;
+}
+
+.admin-module-toolbar h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.admin-module-content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.schedule-panel {
+  margin-top: 12px;
 }
 
 .admin-section {
@@ -667,6 +694,10 @@ label span {
 
 .panel-title {
   margin-bottom: 14px;
+}
+
+.panel-title-spaced {
+  margin-top: 1rem;
 }
 
 .panel-title h3 {
@@ -1423,8 +1454,8 @@ label span {
     grid-template-columns: 1fr;
   }
 
-  .app-shell.is-dashboard .admin-tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .app-shell.is-dashboard .admin-module-hub {
+    grid-template-columns: 1fr;
   }
 
   .app-shell.is-dashboard .profit-section-header {

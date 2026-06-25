@@ -57,6 +57,17 @@ CREATE TABLE appointment_slot_locks (
   INDEX idx_appointment_slot_locks_appointment_id (appointment_id)
 );
 
+CREATE TABLE barber_working_hours (
+  barber_id VARCHAR(36) NOT NULL,
+  day_of_week TINYINT NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (barber_id, day_of_week),
+  INDEX idx_barber_working_hours_day (day_of_week),
+  FOREIGN KEY (barber_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE TABLE password_reset_tokens (
   id VARCHAR(36) PRIMARY KEY,
   user_id VARCHAR(36) NOT NULL,

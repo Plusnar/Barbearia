@@ -24,16 +24,7 @@ const isPastDate = (dateString) => {
   return Number.isNaN(selectedDate.getTime()) || selectedDate < today;
 };
 
-const ensureAppointmentLockTable = (connection) => queryAsync(
-  connection,
-  `CREATE TABLE IF NOT EXISTS appointment_slot_locks (
-    lock_key VARCHAR(160) PRIMARY KEY,
-    appointment_id VARCHAR(36) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_appointment_slot_locks_appointment_id (appointment_id),
-    FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE
-  )`
-);
+const ensureAppointmentLockTable = () => Promise.resolve();
 
 const buildAppointmentLockKeys = ({ appointmentId, barberId, customerId, date, time, duration }) => {
   const start = timeToMinutes(time);

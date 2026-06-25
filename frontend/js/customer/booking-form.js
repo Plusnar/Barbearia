@@ -1,39 +1,42 @@
 import { api } from '../api-client.js';
 import { loadCustomer } from './customer-data.js';
+import { refreshBookingBarbers, refreshBookingTimes } from './availability.js';
 import { $ } from '../dom.js';
 import { setStatus } from '../ui/status.js';
-import { getBusinessHours, getSelectedServiceDuration, minutesToTime, timeToMinutes } from '../utils/schedule.js';
 
 export async function submitBookingForm(event) {
   event.preventDefault();
+
+  const serviceId = $('serviceSelect').value;
+  const date = $('dateInput').value;
+  const time = $('timeSelect').value;
+  const barberId = $('barberSelect').value;
+
+  if (!serviceId || !date) {
+    setStatus($('bookingStatus'), 'Selecione serviço e data.', 'error');
+    return;
+  }
+
+  if (!time) {
+    setStatus($('bookingStatus'), 'Selecione um horário disponível.', 'error');
+    return;
+  }
+
+  if (!barberId) {
+    setStatus($('bookingStatus'), 'Selecione um barbeiro disponível.', 'error');
+    return;
+  }
+
   setStatus($('bookingStatus'), 'Salvando agendamento...');
-  const hours = getBusinessHours($('dateInput').value);
-  const duration = getSelectedServiceDuration();
-  const latestStart = hours ? minutesToTime(timeToMinutes(hours.end) - duration) : '';
-
-  if (!hours) {
-    setStatus($('bookingStatus'), 'A barbearia não atende aos domingos.', 'error');
-    return;
-  }
-
-  if (duration > 0 && timeToMinutes(latestStart) < timeToMinutes(hours.start)) {
-    setStatus($('bookingStatus'), 'O serviço selecionado não cabe no expediente deste dia.', 'error');
-    return;
-  }
-
-  if ($('timeSelect').value < hours.start || $('timeSelect').value > latestStart) {
-    setStatus($('bookingStatus'), `Escolha um horário entre ${hours.start} e ${latestStart}.`, 'error');
-    return;
-  }
 
   try {
     await api('/api/appointments/book', {
       method: 'POST',
       body: JSON.stringify({
-        serviceId: $('serviceSelect').value,
-        barberId: $('barberSelect').value,
-        date: $('dateInput').value,
-        time: $('timeSelect').value,
+        serviceId,
+        barberId,
+        date,
+        time,
         notes: $('notesInput').value.trim()
       })
     });
@@ -42,5 +45,7 @@ export async function submitBookingForm(event) {
     await loadCustomer();
   } catch (error) {
     setStatus($('bookingStatus'), error.message, 'error');
+    await refreshBookingTimes();
+    if ($('timeSelect').value) await refreshBookingBarbers();
   }
 }

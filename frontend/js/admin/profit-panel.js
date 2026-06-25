@@ -266,7 +266,53 @@ export function renderProfitPanel() {
   updateProfitMetrics();
   renderProfitSplit(entries);
   renderProfitHistory(entries);
+  renderCommissionList();
   populateProfitAppointmentSelect();
+}
+
+function renderCommissionList() {
+  const list = $('profitCommissionList');
+  if (!list) return;
+
+  const barbers = state.barbersCache.filter((barber) => barber.id);
+  if (!barbers.length) {
+    list.innerHTML = '<article class="empty">Nenhum barbeiro cadastrado.</article>';
+    return;
+  }
+
+  list.innerHTML = barbers.map((barber) => {
+    const commission = Number(barber.commissionPercentage ?? 50);
+    return `
+      <article class="item">
+        <div class="item-head">
+          <strong>${escapeHtml(barber.name)}</strong>
+        </div>
+        <div class="commission-row">
+          <label>
+            <span>Comissao %</span>
+            <input id="commission-${escapeHtml(barber.id)}" type="number" min="0" max="100" step="0.5" value="${commission}" />
+          </label>
+          <button class="ghost" type="button" onclick="saveCommission(${inlineArg(barber.id)})">Salvar</button>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+export async function saveCommission(barberId) {
+  const input = document.getElementById(`commission-${barberId}`);
+  if (!input) return;
+
+  try {
+    await api(`/api/admin/barbers/${barberId}/commission`, {
+      method: 'PUT',
+      body: JSON.stringify({ commissionPercentage: input.value })
+    });
+    await reloadAdmin();
+    setProfitStatus('Comissao atualizada.', 'ok');
+  } catch (error) {
+    setProfitStatus(error.message, 'error');
+  }
 }
 
 function populateProfitBarbers() {

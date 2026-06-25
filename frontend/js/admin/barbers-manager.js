@@ -4,6 +4,7 @@ import { state } from '../state.js';
 import { escapeHtml, inlineArg, singleQuotedArg } from '../utils/html.js';
 import { setStatus } from '../ui/status.js';
 import { loadAdmin } from './admin-data.js';
+import { hideBarberSchedulePanel, loadBarberSchedule } from './barber-schedule.js';
 
 export function renderBarbers(barbers) {
   barbers = barbers.map(barber => ({
@@ -26,6 +27,7 @@ export function renderBarbers(barbers) {
         Telefone: ${barber.phone}
       </small>
       <div class="item-actions">
+        <button class="ghost" onclick="openBarberSchedule(${inlineArg(barber.id)})">Horários</button>
         <button class="ghost" onclick="editBarber(${inlineArg(barber.id)})">Editar</button>
         <button class="ghost danger-text" onclick="deleteBarber(${inlineArg(barber.id)})">Deletar</button>
       </div>
@@ -43,11 +45,21 @@ export function editBarber(id) {
   $('barberSpecialization').value = barber.specialization || '';
   $('barberPassword').value = '';
   $('barberName').focus();
+  loadBarberSchedule(barber.id);
+}
+
+export async function openBarberSchedule(id) {
+  const { openAdminModule } = await import('./admin-navigation.js');
+  openAdminModule('barber');
+  editBarber(id);
+  $('barberSchedulePanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 export function clearBarberForm() {
   $('barberForm').reset();
   $('barberId').value = '';
+  hideBarberSchedulePanel();
+  setStatus($('barberScheduleStatus'), '');
 }
 
 export async function deleteBarber(id) {
@@ -63,6 +75,15 @@ export async function deleteBarber(id) {
   } catch (error) {
     setStatus($('barberStatus'), error.message, 'error');
   }
+}
+
+function fillBarberForm(barber) {
+  $('barberId').value = barber.id;
+  $('barberName').value = barber.name;
+  $('barberEmail').value = barber.email;
+  $('barberPhone').value = barber.phone;
+  $('barberSpecialization').value = barber.specialization || '';
+  $('barberPassword').value = '';
 }
 
 export async function submitBarberForm(event) {
@@ -96,7 +117,7 @@ export async function submitBarberForm(event) {
   }
 
   try {
-    await api('/api/admin/barbers', {
+    const data = await api('/api/admin/barbers', {
       method: 'POST',
       body: JSON.stringify({
         name: $('barberName').value.trim(),
@@ -106,9 +127,11 @@ export async function submitBarberForm(event) {
         password: $('barberPassword').value
       })
     });
-    clearBarberForm();
-    setStatus($('barberStatus'), 'Barbeiro cadastrado com sucesso.', 'ok');
+    fillBarberForm(data.barber);
+    setStatus($('barberStatus'), 'Barbeiro cadastrado. Defina o expediente abaixo.', 'ok');
     await loadAdmin();
+    await loadBarberSchedule(data.barber.id);
+    $('barberSchedulePanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (error) {
     setStatus($('barberStatus'), error.message, 'error');
   }

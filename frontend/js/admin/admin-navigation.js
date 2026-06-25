@@ -7,14 +7,59 @@ import { state } from '../state.js';
 import { setStatus } from '../ui/status.js';
 import { loadAdmin } from './admin-data.js';
 
-export function switchAdminTab(tab) {
-  document.querySelectorAll('.admin-tab').forEach(button => {
-    button.classList.toggle('active', button.dataset.adminTab === tab);
-  });
+const MODULE_META = {
+  account: {
+    title: 'Minha conta',
+    subtitle: 'Senha e segurança do acesso administrativo.'
+  },
+  profit: {
+    title: 'Financeiro',
+    subtitle: 'Lançamentos, divisão e comissões.'
+  },
+  barber: {
+    title: 'Barbeiros',
+    subtitle: 'Cadastro, edição e expediente dos profissionais.'
+  },
+  services: {
+    title: 'Serviços',
+    subtitle: 'Preços e duração usados nos agendamentos.'
+  },
+  agenda: {
+    title: 'Agenda',
+    subtitle: 'Todos os atendimentos da barbearia.'
+  }
+};
 
-  document.querySelectorAll('.admin-section').forEach(section => {
-    section.classList.toggle('hidden', section.dataset.adminSection !== tab);
+export function showAdminHub() {
+  $('adminModuleHub')?.classList.remove('hidden');
+  $('adminModuleToolbar')?.classList.add('hidden');
+  $('adminModuleContent')?.classList.add('hidden');
+  document.querySelectorAll('.admin-section').forEach((section) => {
+    section.classList.add('hidden');
   });
+  $('pageTitle').textContent = 'Painel administrativo';
+  $('pageSubtitle').textContent = 'Escolha um módulo para gerenciar a barbearia.';
+}
+
+export function openAdminModule(id) {
+  const meta = MODULE_META[id];
+  if (!meta) return;
+
+  $('adminModuleHub')?.classList.add('hidden');
+  $('adminModuleToolbar')?.classList.remove('hidden');
+  $('adminModuleContent')?.classList.remove('hidden');
+  $('adminModuleTitle').textContent = meta.title;
+  $('pageTitle').textContent = meta.title;
+  $('pageSubtitle').textContent = meta.subtitle;
+
+  document.querySelectorAll('.admin-section').forEach((section) => {
+    section.classList.toggle('hidden', section.dataset.adminSection !== id);
+  });
+}
+
+export function initAdminNavigation() {
+  if (String(state.user?.role || '').toUpperCase() !== 'ADMIN') return;
+  showAdminHub();
 }
 
 export async function loadDashboard() {

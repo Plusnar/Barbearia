@@ -14,17 +14,7 @@ import { normalizeCommission } from './profit-service.js';
 
 const defaultCommission = 50;
 
-const ensureCommissionTable = () => new Promise((resolve, reject) => {
-  db.query(
-    `CREATE TABLE IF NOT EXISTS barber_commissions (
-      barber_id VARCHAR(36) PRIMARY KEY,
-      commission_percentage DECIMAL(5, 2) NOT NULL DEFAULT 50,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      FOREIGN KEY (barber_id) REFERENCES users(id) ON DELETE CASCADE
-    )`,
-    (err) => (err ? reject(err) : resolve())
-  );
-});
+const ensureCommissionTable = () => Promise.resolve();
 
 const defaultSchedule = [
   { dayOfWeek: 1, startTime: '09:00', endTime: '20:00' },

@@ -63,65 +63,53 @@ export function getProfitDistribution({ startDate = '', endDate = '', defaultCom
 
   return new Promise((resolve, reject) => {
     db.query(
-      `CREATE TABLE IF NOT EXISTS barber_commissions (
-        barber_id VARCHAR(36) PRIMARY KEY,
-        commission_percentage DECIMAL(5, 2) NOT NULL DEFAULT 50,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (barber_id) REFERENCES users(id) ON DELETE CASCADE
-      )`,
-      (tableError) => {
-        if (tableError) return reject(tableError);
+      `SELECT
+        b.id as barber_id,
+        b.name as barber_name,
+        b.email,
+        b.phone,
+        b.specialization,
+        COALESCE(bc.commission_percentage, ?) as commission_percentage,
+        COUNT(a.id) as services_performed,
+        COALESCE(SUM(s.price), 0) as gross_revenue
+      FROM users b
+      LEFT JOIN barber_commissions bc ON bc.barber_id = b.id
+      LEFT JOIN appointments a ON ${appointmentJoinFilters}
+      LEFT JOIN services s ON a.service_id = s.id
+      WHERE b.role = 'BARBER'
+      GROUP BY b.id, b.name, b.email, b.phone, b.specialization, bc.commission_percentage
+      ORDER BY gross_revenue DESC, b.name ASC`,
+      params,
+      (err, results) => {
+        if (err) return reject(err);
 
-        db.query(
-          `SELECT
-            b.id as barber_id,
-            b.name as barber_name,
-            b.email,
-            b.phone,
-            b.specialization,
-            COALESCE(bc.commission_percentage, ?) as commission_percentage,
-            COUNT(a.id) as services_performed,
-            COALESCE(SUM(s.price), 0) as gross_revenue
-          FROM users b
-          LEFT JOIN barber_commissions bc ON bc.barber_id = b.id
-          LEFT JOIN appointments a ON ${appointmentJoinFilters}
-          LEFT JOIN services s ON a.service_id = s.id
-          WHERE b.role = 'BARBER'
-          GROUP BY b.id, b.name, b.email, b.phone, b.specialization, bc.commission_percentage
-          ORDER BY gross_revenue DESC, b.name ASC`,
-          params,
-          (err, results) => {
-            if (err) return reject(err);
+        const barbers = results.map(row => {
+          const grossRevenue = Number(row.gross_revenue || 0);
+          const commissionPercentage = normalizeCommission(row.commission_percentage);
+          const commissionRate = commissionPercentage / 100;
+          const barberShare = Number((grossRevenue * commissionRate).toFixed(2));
+          const houseShare = Number((grossRevenue - barberShare).toFixed(2));
 
-            const barbers = results.map(row => {
-              const grossRevenue = Number(row.gross_revenue || 0);
-              const commissionPercentage = normalizeCommission(row.commission_percentage);
-              const commissionRate = commissionPercentage / 100;
-              const barberShare = Number((grossRevenue * commissionRate).toFixed(2));
-              const houseShare = Number((grossRevenue - barberShare).toFixed(2));
+          return {
+            barberId: row.barber_id,
+            barberName: row.barber_name,
+            email: row.email,
+            phone: row.phone,
+            specialization: row.specialization,
+            servicesPerformed: Number(row.services_performed || 0),
+            grossRevenue,
+            barberShare,
+            houseShare,
+            commissionPercentage
+          };
+        });
 
-              return {
-                barberId: row.barber_id,
-                barberName: row.barber_name,
-                email: row.email,
-                phone: row.phone,
-                specialization: row.specialization,
-                servicesPerformed: Number(row.services_performed || 0),
-                grossRevenue,
-                barberShare,
-                houseShare,
-                commissionPercentage
-              };
-            });
-
-            resolve({
-              totalGrossRevenue: Number(barbers.reduce((sum, item) => sum + item.grossRevenue, 0).toFixed(2)),
-              totalBarberShare: Number(barbers.reduce((sum, item) => sum + item.barberShare, 0).toFixed(2)),
-              totalHouseShare: Number(barbers.reduce((sum, item) => sum + item.houseShare, 0).toFixed(2)),
-              barbers
-            });
-          }
-        );
+        resolve({
+          totalGrossRevenue: Number(barbers.reduce((sum, item) => sum + item.grossRevenue, 0).toFixed(2)),
+          totalBarberShare: Number(barbers.reduce((sum, item) => sum + item.barberShare, 0).toFixed(2)),
+          totalHouseShare: Number(barbers.reduce((sum, item) => sum + item.houseShare, 0).toFixed(2)),
+          barbers
+        });
       }
     );
   });

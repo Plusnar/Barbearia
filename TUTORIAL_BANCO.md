@@ -101,20 +101,18 @@ Significa que o servidor já está rodando em outra janela.
 
 ### Não conecta ao banco?
 
-Verifique o arquivo `backend/.env`
+Verifique o arquivo `.env` na raiz do projeto ou em `backend/.env`.
 
-Abra procurando `backend` > `.env`
-
-Deve ter:
+Deve conter:
 ```
-DATABASE_HOST=gateway01.us-east-1.prod.aws.tidbcloud.com
+DATABASE_HOST=seu-host-tidb
 DATABASE_PORT=4000
 DATABASE_NAME=barbearia
-DATABASE_USER=3YC71VMTZLLsoRE.root
-DATABASE_PASSWORD=gQ6kW9eJReKHNVNs
+DATABASE_USER=seu-usuario
+DATABASE_PASSWORD=sua-senha-segura
 ```
 
-Se estiver diferente, peça para o responsável corrigir.
+Se estiver diferente, peça para o responsável corrigir. **Nunca commite senhas reais no repositório.**
 
 ---
 
