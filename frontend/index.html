@@ -213,7 +213,7 @@
           </button>
           <button class="admin-module-card" type="button" data-admin-module="barber">
             <strong>Barbeiros</strong>
-            <small>Cadastro, edição e expediente.</small>
+            <small>Cadastro e horários de atendimento (expediente).</small>
           </button>
           <button class="admin-module-card" type="button" data-admin-module="services">
             <strong>Serviços</strong>
@@ -364,8 +364,10 @@
         <section class="panel admin-section hidden" data-admin-section="barber">
           <div class="panel-title">
             <h3>Gerenciar barbeiros</h3>
-            <small>Crie, edite ou remova profissionais.</small>
+            <small>Cadastre profissionais e defina o expediente de atendimento (dias e horários).</small>
           </div>
+          <div id="barberList" class="list barber-list"></div>
+          <p id="barberScheduleHint" class="barber-schedule-hint">Selecione um barbeiro acima e clique em <strong>Horários</strong> para definir quando ele atende.</p>
           <form id="barberForm" class="form-stack compact-form">
             <input id="barberId" type="hidden" />
             <label><span>Nome</span><input id="barberName" type="text" required /></label>
@@ -386,7 +388,6 @@
             <div id="barberScheduleStatus" class="status"></div>
           </section>
           <div id="barberStatus" class="status"></div>
-          <div id="barberList" class="list"></div>
         </section>
 
         <section class="panel admin-section hidden" data-admin-section="services">

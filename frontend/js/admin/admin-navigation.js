@@ -18,7 +18,7 @@ const MODULE_META = {
   },
   barber: {
     title: 'Barbeiros',
-    subtitle: 'Cadastro, edição e expediente dos profissionais.'
+    subtitle: 'Cadastro de profissionais e horários de atendimento (expediente).'
   },
   services: {
     title: 'Serviços',

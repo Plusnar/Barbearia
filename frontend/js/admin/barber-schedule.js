@@ -87,6 +87,7 @@ function readSchedulePayload() {
 export function hideBarberSchedulePanel() {
   $('barberSchedulePanel')?.classList.add('hidden');
   $('barberScheduleFields').innerHTML = '';
+  $('barberScheduleHint')?.classList.remove('hidden');
 }
 
 export async function loadBarberSchedule(barberId) {
@@ -95,6 +96,7 @@ export async function loadBarberSchedule(barberId) {
     return;
   }
 
+  $('barberScheduleHint')?.classList.add('hidden');
   $('barberSchedulePanel').classList.remove('hidden');
   setStatus($('barberScheduleStatus'), 'Carregando horários...');
 

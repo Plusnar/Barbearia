@@ -27,7 +27,7 @@ export function renderBarbers(barbers) {
         Telefone: ${barber.phone}
       </small>
       <div class="item-actions">
-        <button class="ghost" onclick="openBarberSchedule(${inlineArg(barber.id)})">Horários</button>
+        <button class="ghost schedule-action" onclick="openBarberSchedule(${inlineArg(barber.id)})">Horários</button>
         <button class="ghost" onclick="editBarber(${inlineArg(barber.id)})">Editar</button>
         <button class="ghost danger-text" onclick="deleteBarber(${inlineArg(barber.id)})">Deletar</button>
       </div>
