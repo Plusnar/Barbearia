@@ -2,7 +2,7 @@ import { appointmentStatusKey, tokenKey, userKey } from '../config.js';
 import { syncCustomerAutoRefresh } from '../customer/customer-data.js';
 import { $ } from '../dom.js';
 import { state } from '../state.js';
-import { switchAuth } from './auth-forms.js';
+import { dismissWelcomeScreen, switchAuth } from './auth-forms.js';
 
 let loadDashboardFn = null;
 
@@ -46,9 +46,14 @@ function placeAccountPanel(role) {
 export function renderSession() {
   const logged = Boolean(state.token && state.user);
   document.querySelector('.app-shell')?.classList.toggle('is-dashboard', logged);
-  $('authScreen').classList.toggle('hidden', logged);
-  $('dashboardScreen').classList.toggle('hidden', !logged);
-  if (!logged) $('dashboardScreen').classList.remove('customer-dashboard');
+
+  if (logged) {
+    dismissWelcomeScreen();
+  }
+
+  $('authScreen')?.classList.toggle('hidden', logged);
+  $('dashboardScreen')?.classList.toggle('hidden', !logged);
+  if (!logged) $('dashboardScreen')?.classList.remove('customer-dashboard');
 
   if (!logged) {
     switchAuth('login');

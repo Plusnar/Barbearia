@@ -29,3 +29,32 @@ export async function loadCustomer() {
   trackCustomerAppointmentNotifications(appointments);
   renderAppointments($('customerAppointments'), appointments, { showCustomer: false });
 }
+
+export function syncCustomerAutoRefresh(role) {
+  if (state.customerRefreshTimer) {
+    window.clearInterval(state.customerRefreshTimer);
+    state.customerRefreshTimer = null;
+  }
+
+  if (role !== 'CUSTOMER') return;
+
+  const refreshIfVisible = async () => {
+    if (document.hidden) return;
+    if (!state.token || String(state.user?.role || '').toUpperCase() !== 'CUSTOMER') return;
+
+    try {
+      await loadCustomer();
+    } catch (error) {
+      console.error('Customer refresh failed:', error.message);
+    }
+  };
+
+  state.customerRefreshTimer = window.setInterval(refreshIfVisible, 15000);
+
+  if (!state.customerVisibilityHandler) {
+    state.customerVisibilityHandler = () => {
+      if (!document.hidden) refreshIfVisible();
+    };
+    document.addEventListener('visibilitychange', state.customerVisibilityHandler);
+  }
+}

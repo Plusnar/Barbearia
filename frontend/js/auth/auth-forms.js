@@ -5,12 +5,12 @@ export function switchAuth(mode) {
   const login = mode === 'login';
   const register = mode === 'register';
   const recovery = mode === 'recover';
-  $('loginTab').classList.toggle('active', login);
-  $('registerTab').classList.toggle('active', register);
-  $('loginForm').classList.toggle('hidden', !login);
-  $('registerForm').classList.toggle('hidden', !register);
-  $('recoveryForm').classList.toggle('hidden', !recovery);
-  $('resetPasswordForm').classList.toggle('hidden', !recovery);
+  $('loginTab')?.classList.toggle('active', login);
+  $('registerTab')?.classList.toggle('active', register);
+  $('loginForm')?.classList.toggle('hidden', !login);
+  $('registerForm')?.classList.toggle('hidden', !register);
+  $('recoveryForm')?.classList.toggle('hidden', !recovery);
+  $('resetPasswordForm')?.classList.toggle('hidden', !recovery);
   setStatus($('authStatus'), '');
 }
 
@@ -28,10 +28,20 @@ export function setupPasswordToggles() {
   });
 }
 
-export function startApp() {
-  switchAuth('login');
-  $('welcomeScreen').classList.add('is-hidden');
+export function dismissWelcomeScreen() {
+  const welcome = $('welcomeScreen');
+  if (!welcome) return;
+
+  welcome.classList.add('is-hidden');
   window.setTimeout(() => {
-    $('welcomeScreen').remove();
-  }, 450);
+    welcome.remove();
+  }, 420);
+}
+
+export function startApp() {
+  dismissWelcomeScreen();
+  $('authScreen')?.classList.remove('hidden');
+  $('dashboardScreen')?.classList.add('hidden');
+  switchAuth('login');
+  $('loginEmail')?.focus();
 }

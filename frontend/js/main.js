@@ -38,6 +38,11 @@ import { state } from './state.js';
 import { setStatus } from './ui/status.js';
 import { showToast } from './ui/toast.js';
 
+const bind = (id, event, handler) => {
+  const element = $(id);
+  if (element) element.addEventListener(event, handler);
+};
+
 const refreshBookingAvailability = () => {
   refreshBookingTimes().catch((error) => {
     console.error('Failed to refresh booking times:', error.message);
@@ -46,43 +51,60 @@ const refreshBookingAvailability = () => {
 
 setLoadDashboard(loadDashboard);
 
-$('loginTab').addEventListener('click', () => switchAuth('login'));
-$('registerTab').addEventListener('click', () => switchAuth('register'));
-$('forgotPasswordBtn').addEventListener('click', () => {
+bind('loginTab', 'click', () => switchAuth('login'));
+bind('registerTab', 'click', () => switchAuth('register'));
+bind('forgotPasswordBtn', 'click', () => {
   $('recoveryEmail').value = $('loginEmail').value.trim();
   switchAuth('recover');
 });
-$('backToLoginBtn').addEventListener('click', () => switchAuth('login'));
-$('welcomeScreen').addEventListener('click', startApp);
-$('welcomeScreen').addEventListener('touchstart', startApp, { once: true });
-$('refreshBtn').addEventListener('click', () => loadDashboard());
-$('logoutBtn').addEventListener('click', logout);
-$('statusFilter').addEventListener('change', renderAdminAppointments);
-$('profitEntryBarberSelect').addEventListener('change', syncProfitFormFromBarber);
-$('profitAppointmentSelect').addEventListener('change', syncProfitFormFromAppointment);
-$('profitSourceSelect').addEventListener('change', syncProfitFormFromService);
-$('profitAmountInput').addEventListener('input', updateProfitPreview);
-$('profitCommissionInput').addEventListener('input', updateProfitPreview);
-$('profitApplyPeriodFilterBtn').addEventListener('click', renderProfitPanel);
-$('profitClearPeriodFilterBtn').addEventListener('click', () => {
+bind('backToLoginBtn', 'click', () => switchAuth('login'));
+
+const welcomeScreen = $('welcomeScreen');
+if (welcomeScreen) {
+  let welcomeStarted = false;
+  const handleWelcomeStart = (event) => {
+    if (welcomeStarted) return;
+    welcomeStarted = true;
+    event?.preventDefault?.();
+    startApp();
+  };
+  welcomeScreen.addEventListener('click', handleWelcomeStart);
+  welcomeScreen.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') handleWelcomeStart(event);
+  });
+  welcomeScreen.setAttribute('tabindex', '0');
+  welcomeScreen.setAttribute('role', 'button');
+  welcomeScreen.setAttribute('aria-label', 'Toque para começar');
+}
+
+bind('refreshBtn', 'click', () => loadDashboard());
+bind('logoutBtn', 'click', logout);
+bind('statusFilter', 'change', renderAdminAppointments);
+bind('profitEntryBarberSelect', 'change', syncProfitFormFromBarber);
+bind('profitAppointmentSelect', 'change', syncProfitFormFromAppointment);
+bind('profitSourceSelect', 'change', syncProfitFormFromService);
+bind('profitAmountInput', 'input', updateProfitPreview);
+bind('profitCommissionInput', 'input', updateProfitPreview);
+bind('profitApplyPeriodFilterBtn', 'click', renderProfitPanel);
+bind('profitClearPeriodFilterBtn', 'click', () => {
   $('profitPeriodStartDate').value = '';
   $('profitPeriodEndDate').value = '';
   renderProfitPanel();
 });
-$('profitClearButton').addEventListener('click', clearProfitForm);
-$('clearServiceBtn').addEventListener('click', clearServiceForm);
-$('clearBarberBtn').addEventListener('click', clearBarberForm);
-$('newBarberBtn').addEventListener('click', startNewBarberForm);
-$('barberList').addEventListener('click', handleBarberListClick);
-$('saveBarberScheduleBtn').addEventListener('click', saveBarberSchedule);
-$('dateInput').addEventListener('change', refreshBookingAvailability);
-$('serviceSelect').addEventListener('change', refreshBookingAvailability);
-$('timeSelect').addEventListener('change', () => {
+bind('profitClearButton', 'click', clearProfitForm);
+bind('clearServiceBtn', 'click', clearServiceForm);
+bind('clearBarberBtn', 'click', clearBarberForm);
+bind('newBarberBtn', 'click', startNewBarberForm);
+bind('barberList', 'click', handleBarberListClick);
+bind('saveBarberScheduleBtn', 'click', saveBarberSchedule);
+bind('dateInput', 'change', refreshBookingAvailability);
+bind('serviceSelect', 'change', refreshBookingAvailability);
+bind('timeSelect', 'change', () => {
   refreshBookingBarbers().catch((error) => {
     console.error('Failed to refresh booking barbers:', error.message);
   });
 });
-$('adminBackBtn').addEventListener('click', showAdminHub);
+bind('adminBackBtn', 'click', showAdminHub);
 document.querySelectorAll('.admin-module-card').forEach((button) => {
   button.addEventListener('click', () => openAdminModule(button.dataset.adminModule));
 });
