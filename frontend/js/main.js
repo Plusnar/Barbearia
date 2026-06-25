@@ -41,6 +41,7 @@ import { showToast } from './ui/toast.js';
 const bind = (id, event, handler) => {
   const element = $(id);
   if (element) element.addEventListener(event, handler);
+  else console.warn(`Elemento #${id} nao encontrado para o evento ${event}.`);
 };
 
 const refreshBookingAvailability = () => {
@@ -69,12 +70,17 @@ if (welcomeScreen) {
     startApp();
   };
   welcomeScreen.addEventListener('click', handleWelcomeStart);
+  welcomeScreen.addEventListener('pointerup', handleWelcomeStart);
+  welcomeScreen.addEventListener('touchend', handleWelcomeStart);
   welcomeScreen.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ' ') handleWelcomeStart(event);
   });
   welcomeScreen.setAttribute('tabindex', '0');
   welcomeScreen.setAttribute('role', 'button');
   welcomeScreen.setAttribute('aria-label', 'Toque para começar');
+} else {
+  console.warn('welcomeScreen nao encontrado; abrindo login direto.');
+  startApp();
 }
 
 bind('refreshBtn', 'click', () => loadDashboard());
@@ -109,7 +115,7 @@ document.querySelectorAll('.admin-module-card').forEach((button) => {
   button.addEventListener('click', () => openAdminModule(button.dataset.adminModule));
 });
 
-$('loginForm').addEventListener('submit', async (event) => {
+bind('loginForm', 'submit', async (event) => {
   event.preventDefault();
   setStatus($('authStatus'), 'Entrando...');
   try {
@@ -130,7 +136,7 @@ $('loginForm').addEventListener('submit', async (event) => {
   }
 });
 
-$('registerForm').addEventListener('submit', async (event) => {
+bind('registerForm', 'submit', async (event) => {
   event.preventDefault();
   setStatus($('authStatus'), 'Criando conta...');
   const password = $('registerPassword').value;
@@ -162,7 +168,7 @@ $('registerForm').addEventListener('submit', async (event) => {
   }
 });
 
-$('recoveryForm').addEventListener('submit', async (event) => {
+bind('recoveryForm', 'submit', async (event) => {
   event.preventDefault();
   setStatus($('authStatus'), 'Preparando recuperacao...');
   try {
@@ -178,7 +184,7 @@ $('recoveryForm').addEventListener('submit', async (event) => {
   }
 });
 
-$('resetPasswordForm').addEventListener('submit', async (event) => {
+bind('resetPasswordForm', 'submit', async (event) => {
   event.preventDefault();
   setStatus($('authStatus'), 'Alterando senha...');
   try {
@@ -198,7 +204,7 @@ $('resetPasswordForm').addEventListener('submit', async (event) => {
   }
 });
 
-$('passwordForm').addEventListener('submit', async (event) => {
+bind('passwordForm', 'submit', async (event) => {
   event.preventDefault();
   setStatus($('passwordStatus'), 'Atualizando senha...');
   try {
@@ -217,10 +223,10 @@ $('passwordForm').addEventListener('submit', async (event) => {
   }
 });
 
-$('profitForm').addEventListener('submit', submitProfitForm);
-$('barberForm').addEventListener('submit', submitBarberForm);
-$('bookingForm').addEventListener('submit', submitBookingForm);
-$('serviceForm').addEventListener('submit', submitServiceForm);
+bind('profitForm', 'submit', submitProfitForm);
+bind('barberForm', 'submit', submitBarberForm);
+bind('bookingForm', 'submit', submitBookingForm);
+bind('serviceForm', 'submit', submitServiceForm);
 
 window.updateStatus = updateStatus;
 window.editService = editService;
@@ -228,6 +234,16 @@ window.deleteService = deleteService;
 window.deleteProfitEntry = deleteProfitEntry;
 window.saveCommission = saveCommission;
 
-setupPasswordToggles();
-setupBarberSchedulePanel();
+try {
+  setupPasswordToggles();
+} catch (error) {
+  console.error('setupPasswordToggles falhou:', error.message);
+}
+
+try {
+  setupBarberSchedulePanel();
+} catch (error) {
+  console.error('setupBarberSchedulePanel falhou:', error.message);
+}
+
 renderSession();

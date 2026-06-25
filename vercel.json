@@ -6,6 +6,8 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "src": "/(js/.*\\.js)", "headers": { "cache-control": "no-store, must-revalidate" }, "dest": "/frontend/$1" },
+    { "src": "/(styles\\.css)", "headers": { "cache-control": "no-store, must-revalidate" }, "dest": "/frontend/$1" },
     { "src": "/(.*\\.(css|js|gif|png|jpg|jpeg|svg|ico|webmanifest))", "dest": "/frontend/$1" },
     { "src": "/(.*)", "dest": "/frontend/index.html" }
   ]
