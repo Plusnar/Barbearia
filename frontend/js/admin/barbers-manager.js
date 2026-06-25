@@ -5,7 +5,6 @@ import { escapeHtml } from '../utils/html.js';
 import { setStatus } from '../ui/status.js';
 import { loadAdmin } from './admin-data.js';
 import {
-  applyScheduleToForm,
   DEFAULT_BARBER_SCHEDULE,
   loadBarberSchedule,
   persistBarberSchedule,
@@ -60,9 +59,7 @@ export function renderBarbers(barbers, schedulesByBarber = {}) {
 export function prepareBarberModule() {
   $('barberFormTitle').textContent = 'Novo barbeiro';
   $('barberPasswordLabel').textContent = 'Senha inicial';
-  if (!$('barberId')?.value) {
-    showBarberSchedulePanel(DEFAULT_BARBER_SCHEDULE);
-  }
+  showBarberSchedulePanel(DEFAULT_BARBER_SCHEDULE);
 }
 
 export function startNewBarberForm() {
@@ -70,7 +67,7 @@ export function startNewBarberForm() {
   $('barberId').value = '';
   $('barberFormTitle').textContent = 'Novo barbeiro';
   $('barberPasswordLabel').textContent = 'Senha inicial';
-  applyScheduleToForm(DEFAULT_BARBER_SCHEDULE);
+  showBarberSchedulePanel(DEFAULT_BARBER_SCHEDULE);
   setStatus($('barberStatus'), '');
   setStatus($('barberScheduleStatus'), '');
   $('barberName')?.focus();
@@ -89,6 +86,7 @@ export function editBarber(id) {
   $('barberFormTitle').textContent = `Editar: ${barber.name}`;
   $('barberPasswordLabel').textContent = 'Nova senha (opcional)';
   setStatus($('barberStatus'), '');
+  showBarberSchedulePanel(DEFAULT_BARBER_SCHEDULE);
   loadBarberSchedule(barber.id);
   $('barberSchedulePanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }

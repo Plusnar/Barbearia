@@ -29,6 +29,7 @@ export function setupPasswordToggles() {
 }
 
 export function startApp() {
+  switchAuth('login');
   $('welcomeScreen').classList.add('is-hidden');
   window.setTimeout(() => {
     $('welcomeScreen').remove();

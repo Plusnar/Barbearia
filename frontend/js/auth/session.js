@@ -2,6 +2,7 @@ import { appointmentStatusKey, tokenKey, userKey } from '../config.js';
 import { syncCustomerAutoRefresh } from '../customer/customer-data.js';
 import { $ } from '../dom.js';
 import { state } from '../state.js';
+import { switchAuth } from './auth-forms.js';
 
 let loadDashboardFn = null;
 
@@ -50,6 +51,7 @@ export function renderSession() {
   if (!logged) $('dashboardScreen').classList.remove('customer-dashboard');
 
   if (!logged) {
+    switchAuth('login');
     syncCustomerAutoRefresh(null);
     return;
   }
