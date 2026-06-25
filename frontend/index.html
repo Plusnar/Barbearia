@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Barbearia Castilho</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <div id="toastRoot" class="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+    <section id="welcomeScreen" class="welcome-screen">
+      <img class="welcome-logo" src="logo.png" alt="Barbearia Castilho" />
+      <div class="welcome-content">
+        <h1>Bem-Vindo!</h1>
+        <p>Toque para começar</p>
+      </div>
+      <div class="welcome-address">R. Schramm, 647 - Schramm, São Bento do Sul - SC, 89280-683</div>
+    </section>
+
+    <section id="authScreen" class="auth-screen">
+      <div class="brand-panel">
+        <div class="brand-mark">B</div>
+        <h1>Barbearia Castilho</h1>
+      </div>
+
+      <section class="auth-card">
+        <div class="tabs">
+          <button id="loginTab" class="tab active" type="button">Entrar</button>
+          <button id="registerTab" class="tab" type="button">Criar conta</button>
+        </div>
+
+        <form id="loginForm" class="form-stack">
+          <label>
+            <span>E-mail</span>
+            <input id="loginEmail" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            <span>Senha</span>
+            <input id="loginPassword" type="password" autocomplete="current-password" required />
+          </label>
+          <button class="primary" type="submit">Entrar</button>
+          <button id="forgotPasswordBtn" class="text-button" type="button">Esqueci minha senha</button>
+        </form>
+
+        <form id="registerForm" class="form-stack hidden">
+          <label>
+            <span>Nome completo</span>
+            <input id="registerName" type="text" autocomplete="name" required />
+          </label>
+          <label>
+            <span>E-mail</span>
+            <input id="registerEmail" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            <span>Telefone</span>
+            <input id="registerPhone" type="tel" placeholder="(11) 99999-9999" required />
+          </label>
+          <label>
+            <span>Senha</span>
+            <div class="password-field">
+              <input id="registerPassword" type="password" autocomplete="new-password" required />
+              <button class="password-toggle" type="button" data-toggle-password="registerPassword" aria-label="Mostrar senha" title="Mostrar senha">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </label>
+          <label>
+            <span>Confirmar senha</span>
+            <div class="password-field">
+              <input id="registerConfirmPassword" type="password" autocomplete="new-password" required />
+              <button class="password-toggle" type="button" data-toggle-password="registerConfirmPassword" aria-label="Mostrar confirmacao de senha" title="Mostrar senha">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </label>
+          <button class="primary" type="submit">Criar conta</button>
+        </form>
+
+        <form id="recoveryForm" class="form-stack hidden">
+          <div class="auth-copy">
+            <strong>Recuperar senha</strong>
+            <small>Informe o e-mail cadastrado para receber um codigo de 6 digitos.</small>
+          </div>
+          <label>
+            <span>E-mail da conta</span>
+            <input id="recoveryEmail" type="email" autocomplete="email" required />
+          </label>
+          <button class="primary" type="submit">Enviar recuperacao</button>
+        </form>
+
+        <form id="resetPasswordForm" class="form-stack hidden">
+          <label>
+            <span>Codigo recebido</span>
+            <input id="resetCode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required />
+          </label>
+          <label>
+            <span>Nova senha</span>
+            <input id="resetNewPassword" type="password" autocomplete="new-password" required />
+          </label>
+          <button class="primary" type="submit">Trocar senha</button>
+          <button id="backToLoginBtn" class="text-button" type="button">Voltar para entrar</button>
+        </form>
+        <div id="authStatus" class="status"></div>
+      </section>
+    </section>
+
+    <section id="dashboardScreen" class="dashboard hidden">
+      <header class="app-header">
+        <div>
+          <span id="roleBadge" class="eyebrow">Conta</span>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Dados conectados ao TiDB Cloud.</p>
+        </div>
+        <div class="header-actions">
+          <button id="refreshBtn" class="icon-button" type="button" title="Atualizar">Atualizar</button>
+          <button id="logoutBtn" class="ghost danger-text" type="button">Sair</button>
+        </div>
+      </header>
+
+      <section class="session-strip">
+        <div>
+          <strong id="sessionName">Usuario</strong>
+          <small id="sessionInfo"></small>
+        </div>
+      </section>
+
+      <section id="accountPanel" class="panel account-panel">
+        <div class="panel-title">
+          <h3>Minha conta</h3>
+          <small>Segurança da conta e acesso ao painel.</small>
+        </div>
+        <form id="passwordForm" class="form-stack password-form">
+          <label>
+            <span>Senha atual</span>
+            <input id="currentPassword" type="password" autocomplete="current-password" required />
+          </label>
+          <label>
+            <span>Nova senha</span>
+            <input id="newPassword" type="password" autocomplete="new-password" required />
+          </label>
+          <button class="ghost" type="submit">Mudar senha</button>
+        </form>
+        <div id="passwordStatus" class="status"></div>
+      </section>
+
+      <div id="customerView" class="view-grid hidden">
+        <section class="panel">
+          <div class="panel-title">
+            <h3>Novo agendamento</h3>
+            <small>Escolha serviço, barbeiro e horário.</small>
+          </div>
+          <form id="bookingForm" class="form-stack">
+            <label>
+              <span>Serviço</span>
+              <select id="serviceSelect" required></select>
+            </label>
+            <label>
+              <span>Barbeiro</span>
+              <select id="barberSelect" required></select>
+            </label>
+            <div class="two-cols">
+              <label>
+                <span>Data</span>
+                <input id="dateInput" type="date" required />
+              </label>
+              <label>
+                <span>Horário</span>
+                <input id="timeSelect" type="time" step="60" required />
+              </label>
+            </div>
+            <label>
+              <span>Observações</span>
+              <textarea id="notesInput" placeholder="Ex.: corte baixo, barba desenhada"></textarea>
+            </label>
+            <button class="primary" type="submit">Agendar</button>
+          </form>
+          <div id="bookingStatus" class="status"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <h3>Meus horários</h3>
+            <small>Acompanhe confirmação e conclusão.</small>
+          </div>
+          <div id="customerAppointments" class="list"></div>
+        </section>
+      </div>
+
+      <div id="barberView" class="view-grid hidden">
+        <section class="metric-grid span-full">
+          <article class="metric-card"><span>Pendentes</span><strong id="barberPendingMetric">0</strong></article>
+          <article class="metric-card"><span>Concluídos</span><strong id="barberCompletedMetric">0</strong></article>
+          <article class="metric-card"><span>Receita feita</span><strong id="barberRevenueMetric">R$ 0,00</strong></article>
+        </section>
+        <section class="panel span-full">
+          <div class="panel-title">
+            <h3>Minha agenda</h3>
+            <small>Confirme se o cliente chegou e marque o corte como realizado.</small>
+          </div>
+          <div id="barberAppointments" class="list"></div>
+        </section>
+      </div>
+
+      <div id="adminView" class="view-grid hidden">
+        <section class="metric-grid span-full">
+          <article class="metric-card"><span>Agendamentos</span><strong id="metricAppointments">0</strong></article>
+          <article class="metric-card"><span>Cortes feitos</span><strong id="metricCompleted">0</strong></article>
+          <article class="metric-card"><span>Receita</span><strong id="metricRevenue">R$ 0,00</strong></article>
+          <article class="metric-card"><span>Clientes</span><strong id="metricCustomers">0</strong></article>
+        </section>
+
+        <nav class="admin-tabs span-full" aria-label="Categorias do painel administrativo">
+          <button class="admin-tab active" type="button" data-admin-tab="account">Minha conta</button>
+          <button class="admin-tab" type="button" data-admin-tab="profit">Financeiro</button>
+          <button class="admin-tab" type="button" data-admin-tab="barber">Novo barbeiro</button>
+          <button class="admin-tab" type="button" data-admin-tab="services">Serviços</button>
+          <button class="admin-tab" type="button" data-admin-tab="agenda">Agenda</button>
+        </nav>
+
+        <section class="panel admin-section hidden" data-admin-section="account">
+          <div id="adminAccountMount"></div>
+        </section>
+
+        <section class="admin-section profit-launch-section" data-admin-section="profit">
+          <div class="profit-section-header">
+            <div>
+              <span class="eyebrow">Financeiro</span>
+              <h3>Lancamento de lucros</h3>
+              <p>Registre entradas do caixa e acompanhe a divisao entre casa e profissionais.</p>
+            </div>
+          </div>
+
+          <section class="profit-topline">
+            <div class="profit-brand">
+              <img class="profit-logo" src="logo.png" alt="Barbearia Castilho" />
+              <div>
+                <strong>Barbearia Castilho</strong>
+                <small id="profitPeriodLabel">Carregando periodo...</small>
+              </div>
+            </div>
+            <span id="profitCashBadge" class="badge pending">Carregando</span>
+          </section>
+
+          <section class="metric-grid span-full">
+            <article class="metric-card"><span>Receita lancada</span><strong id="profitGrossMetric">R$ 0,00</strong></article>
+            <article class="metric-card"><span>Parte da casa</span><strong id="profitHouseMetric">R$ 0,00</strong></article>
+            <article class="metric-card"><span>Profissionais</span><strong id="profitBarberMetric">R$ 0,00</strong></article>
+            <article class="metric-card"><span>Lancamentos</span><strong id="profitEntriesMetric">0</strong></article>
+          </section>
+
+          <div class="profit-shell">
+            <section class="panel">
+              <div class="panel-title">
+                <h3>Novo lancamento</h3>
+                <small>Informe o valor recebido e defina como sera feita a divisao.</small>
+              </div>
+              <form id="profitForm" class="form-stack">
+                <div class="profit-form-grid">
+                  <label><span>Data</span><input id="profitEntryDate" type="date" required /></label>
+                  <label>
+                    <span>Agendamento vinculado</span>
+                    <select id="profitAppointmentSelect"><option value="">Lancamento manual</option></select>
+                  </label>
+                  <label><span>Profissional</span><select id="profitEntryBarberSelect" required></select></label>
+                  <label><span>Origem</span><select id="profitSourceSelect" required></select></label>
+                  <label>
+                    <span>Forma de pagamento</span>
+                    <select id="profitPaymentSelect" required>
+                      <option>Pix</option>
+                      <option>Cartao de debito</option>
+                      <option>Cartao de credito</option>
+                      <option>Dinheiro</option>
+                    </select>
+                  </label>
+                  <label><span>Valor recebido</span><input id="profitAmountInput" type="number" min="0" step="0.01" value="85.00" required /></label>
+                  <label><span>Comissao do profissional %</span><input id="profitCommissionInput" type="number" min="0" max="100" step="0.5" value="55" required /></label>
+                  <label class="span-two">
+                    <span>Observacoes</span>
+                    <textarea id="profitNotesInput" placeholder="Ex.: cliente pagou parte em dinheiro e parte no Pix"></textarea>
+                  </label>
+                </div>
+
+                <div class="revenue-preview" aria-live="polite">
+                  <div class="preview-box"><span>Total</span><strong id="profitPreviewGross">R$ 85,00</strong></div>
+                  <div class="preview-box"><span>Profissional</span><strong id="profitPreviewBarber">R$ 46,75</strong></div>
+                  <div class="preview-box"><span>Casa</span><strong id="profitPreviewHouse">R$ 38,25</strong></div>
+                </div>
+
+                <div class="profit-actions">
+                  <button class="primary" type="submit">Registrar lancamento</button>
+                  <button id="profitClearButton" class="ghost" type="button">Limpar</button>
+                </div>
+                <div id="profitFormStatus" class="status"></div>
+              </form>
+            </section>
+
+            <section class="panel settlement-panel">
+              <div class="panel-title">
+                <h3>Divisao do estabelecimento</h3>
+                <small>Ganho acumulado por barbeiro com base no periodo filtrado.</small>
+              </div>
+              <div class="profit-period-filter">
+                <label><span>Data inicio</span><input id="profitPeriodStartDate" type="date" /></label>
+                <label><span>Data fim</span><input id="profitPeriodEndDate" type="date" /></label>
+                <button id="profitApplyPeriodFilterBtn" class="ghost" type="button">Filtrar</button>
+                <button id="profitClearPeriodFilterBtn" class="ghost" type="button">Limpar</button>
+              </div>
+              <div id="profitPeriodFilterStatus" class="status"></div>
+              <div id="profitSplitList" class="list"></div>
+            </section>
+
+            <section class="panel span-full">
+              <div class="panel-title">
+                <h3>Historico recente</h3>
+                <small>Ultimos registros adicionados ao caixa financeiro.</small>
+              </div>
+              <div id="profitHistoryTable" class="history-table">
+                <div class="history-row header">
+                  <span>Lancamento</span>
+                  <span>Profissional</span>
+                  <span>Valor</span>
+                  <span>Divisao</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="panel admin-section hidden" data-admin-section="barber">
+          <div class="panel-title">
+            <h3>Gerenciar barbeiros</h3>
+            <small>Crie, edite ou remova profissionais.</small>
+          </div>
+          <form id="barberForm" class="form-stack compact-form">
+            <input id="barberId" type="hidden" />
+            <label><span>Nome</span><input id="barberName" type="text" required /></label>
+            <label><span>E-mail</span><input id="barberEmail" type="email" required /></label>
+            <label><span>Telefone</span><input id="barberPhone" type="tel" required /></label>
+            <label><span>Especialidade</span><input id="barberSpecialization" type="text" placeholder="Ex.: Cortes e barba" /></label>
+            <label><span>Senha inicial</span><input id="barberPassword" type="password" /></label>
+            <button class="primary" type="submit">Salvar barbeiro</button>
+            <button id="clearBarberBtn" class="ghost" type="button">Limpar</button>
+          </form>
+          <div id="barberStatus" class="status"></div>
+          <div id="barberList" class="list"></div>
+        </section>
+
+        <section class="panel admin-section hidden" data-admin-section="services">
+          <div class="panel-title">
+            <h3>Serviços</h3>
+            <small>Cadastre e edite preços usados nos agendamentos.</small>
+          </div>
+          <form id="serviceForm" class="form-stack compact-form">
+            <input id="serviceId" type="hidden" />
+            <label><span>Nome</span><input id="serviceName" type="text" required /></label>
+            <div class="two-cols">
+              <label><span>Duração</span><input id="serviceDuration" type="number" min="5" step="5" required /></label>
+              <label><span>Preço</span><input id="servicePrice" type="number" min="0" step="0.01" required /></label>
+            </div>
+            <label><span>Descrição</span><textarea id="serviceDescription"></textarea></label>
+            <button class="primary" type="submit">Salvar serviço</button>
+            <button id="clearServiceBtn" class="ghost" type="button">Limpar</button>
+          </form>
+          <div id="serviceStatus" class="status"></div>
+          <div id="serviceList" class="list"></div>
+        </section>
+
+        <section class="panel span-full admin-section hidden" data-admin-section="agenda">
+          <div class="panel-title">
+            <h3>Agenda geral</h3>
+            <small>Controle todos os atendimentos da barbearia.</small>
+          </div>
+          <div class="filter-row">
+            <select id="statusFilter">
+              <option value="">Todos</option>
+              <option value="PENDING">Pendentes</option>
+              <option value="CONFIRMED">Confirmados</option>
+              <option value="COMPLETED">Concluídos</option>
+              <option value="CANCELLED">Cancelados</option>
+            </select>
+          </div>
+          <div id="adminAppointments" class="list"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
