@@ -12,6 +12,15 @@ const WEEKDAYS = [
   { dayOfWeek: 6, label: 'Sabado' }
 ];
 
+export const DEFAULT_BARBER_SCHEDULE = [
+  { dayOfWeek: 1, startTime: '09:00', endTime: '20:00' },
+  { dayOfWeek: 2, startTime: '09:00', endTime: '20:00' },
+  { dayOfWeek: 3, startTime: '09:00', endTime: '20:00' },
+  { dayOfWeek: 4, startTime: '09:00', endTime: '20:00' },
+  { dayOfWeek: 5, startTime: '09:00', endTime: '20:00' },
+  { dayOfWeek: 6, startTime: '09:00', endTime: '17:00' }
+];
+
 function renderScheduleFields(schedule = []) {
   const scheduleByDay = new Map(schedule.map((row) => [Number(row.dayOfWeek), row]));
 
@@ -52,7 +61,7 @@ function renderScheduleFields(schedule = []) {
   });
 }
 
-function readSchedulePayload() {
+export function readSchedulePayload() {
   const invalidDay = WEEKDAYS.find((day) => {
     const checkbox = document.querySelector(`.schedule-enabled[data-day="${day.dayOfWeek}"]`);
     if (!checkbox?.checked) return false;
@@ -84,6 +93,13 @@ function readSchedulePayload() {
   }).filter(Boolean);
 }
 
+export function showBarberSchedulePanel(schedule = DEFAULT_BARBER_SCHEDULE) {
+  $('barberScheduleHint')?.classList.add('hidden');
+  $('barberSchedulePanel')?.classList.remove('hidden');
+  renderScheduleFields(schedule);
+  setStatus($('barberScheduleStatus'), 'Marque os dias e horários de atendimento deste profissional.', 'ok');
+}
+
 export function hideBarberSchedulePanel() {
   $('barberSchedulePanel')?.classList.add('hidden');
   $('barberScheduleFields').innerHTML = '';
@@ -92,7 +108,7 @@ export function hideBarberSchedulePanel() {
 
 export async function loadBarberSchedule(barberId) {
   if (!barberId) {
-    hideBarberSchedulePanel();
+    showBarberSchedulePanel();
     return;
   }
 
@@ -102,40 +118,37 @@ export async function loadBarberSchedule(barberId) {
 
   try {
     const data = await api(`/api/admin/barbers/${barberId}/schedule`);
-    renderScheduleFields(data.schedule || []);
-    setStatus($('barberScheduleStatus'), 'Ajuste o expediente e clique em Salvar horários.', 'ok');
+    renderScheduleFields(data.schedule?.length ? data.schedule : DEFAULT_BARBER_SCHEDULE);
+    setStatus($('barberScheduleStatus'), 'Ajuste o expediente e salve o barbeiro.', 'ok');
   } catch (error) {
-    renderScheduleFields([]);
+    renderScheduleFields(DEFAULT_BARBER_SCHEDULE);
     setStatus($('barberScheduleStatus'), error.message, 'error');
   }
+}
+
+export async function persistBarberSchedule(barberId) {
+  const schedule = readSchedulePayload();
+
+  if (schedule.length === 0) {
+    throw new Error('Marque pelo menos um dia de atendimento.');
+  }
+
+  await api(`/api/admin/barbers/${barberId}/schedule`, {
+    method: 'PUT',
+    body: JSON.stringify({ schedule })
+  });
 }
 
 export async function saveBarberSchedule() {
   const barberId = $('barberId').value;
   if (!barberId) {
-    setStatus($('barberScheduleStatus'), 'Selecione um barbeiro para editar o expediente.', 'error');
-    return;
-  }
-
-  let schedule;
-  try {
-    schedule = readSchedulePayload();
-  } catch (error) {
-    setStatus($('barberScheduleStatus'), error.message, 'error');
-    return;
-  }
-
-  if (schedule.length === 0) {
-    setStatus($('barberScheduleStatus'), 'Marque pelo menos um dia de atendimento.', 'error');
+    setStatus($('barberScheduleStatus'), 'Salve o barbeiro antes de gravar o expediente separadamente.', 'error');
     return;
   }
 
   try {
     setStatus($('barberScheduleStatus'), 'Salvando horários...');
-    await api(`/api/admin/barbers/${barberId}/schedule`, {
-      method: 'PUT',
-      body: JSON.stringify({ schedule })
-    });
+    await persistBarberSchedule(barberId);
     setStatus($('barberScheduleStatus'), 'Horários salvos com sucesso.', 'ok');
   } catch (error) {
     setStatus($('barberScheduleStatus'), error.message, 'error');
@@ -143,5 +156,5 @@ export async function saveBarberSchedule() {
 }
 
 export function setupBarberSchedulePanel() {
-  renderScheduleFields([]);
+  showBarberSchedulePanel();
 }

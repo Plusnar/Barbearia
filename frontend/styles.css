@@ -661,7 +661,20 @@ label span {
 }
 
 .schedule-panel {
-  margin-top: 12px;
+  margin: 8px 0 4px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.schedule-panel .panel-title {
+  margin-bottom: 10px;
+}
+
+.schedule-panel .panel-title h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
 }
 
 .barber-list {
@@ -1492,6 +1505,10 @@ label span {
   }
 
   .app-shell.is-dashboard .admin-module-hub {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell.is-dashboard .schedule-row {
     grid-template-columns: 1fr;
   }
 

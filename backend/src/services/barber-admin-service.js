@@ -213,6 +213,21 @@ export function createBarber(body) {
     throw error;
   }
 
+  const scheduleInput = Array.isArray(body.schedule) ? body.schedule : defaultSchedule;
+  const schedule = normalizeScheduleRows(scheduleInput);
+
+  if (schedule.length === 0) {
+    const error = new Error('Informe pelo menos um dia de atendimento com horario valido');
+    error.status = 400;
+    throw error;
+  }
+
+  if (Array.isArray(body.schedule) && schedule.length !== body.schedule.length) {
+    const error = new Error('Invalid day or time range in schedule');
+    error.status = 400;
+    throw error;
+  }
+
   return new Promise((resolve, reject) => {
     db.query('SELECT id FROM users WHERE email = ?', [email], (selectError, users) => {
       if (selectError) return reject(selectError);
@@ -235,7 +250,7 @@ export function createBarber(body) {
 
           try {
             await ensureScheduleTable();
-            await insertScheduleRows(db, barberId, defaultSchedule);
+            await insertScheduleRows(db, barberId, schedule);
 
             resolve({
               id: barberId,

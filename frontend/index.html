@@ -367,7 +367,7 @@
             <small>Cadastre profissionais e defina o expediente de atendimento (dias e horários).</small>
           </div>
           <div id="barberList" class="list barber-list"></div>
-          <p id="barberScheduleHint" class="barber-schedule-hint">Selecione um barbeiro acima e clique em <strong>Horários</strong> para definir quando ele atende.</p>
+          <p id="barberScheduleHint" class="barber-schedule-hint hidden">Use o formulário abaixo para cadastrar um novo barbeiro e definir o expediente.</p>
           <form id="barberForm" class="form-stack compact-form">
             <input id="barberId" type="hidden" />
             <label><span>Nome</span><input id="barberName" type="text" required /></label>
@@ -375,18 +375,18 @@
             <label><span>Telefone</span><input id="barberPhone" type="tel" required /></label>
             <label><span>Especialidade</span><input id="barberSpecialization" type="text" placeholder="Ex.: Cortes e barba" /></label>
             <label><span>Senha inicial</span><input id="barberPassword" type="password" /></label>
-            <button class="primary" type="submit">Salvar barbeiro</button>
+            <section id="barberSchedulePanel" class="schedule-panel">
+              <div class="panel-title">
+                <h3>Horário de atendimento</h3>
+                <small>Marque os dias e defina início e fim do expediente deste barbeiro.</small>
+              </div>
+              <div id="barberScheduleFields"></div>
+              <div id="barberScheduleStatus" class="status"></div>
+            </section>
+            <button class="primary" type="submit">Salvar barbeiro e horários</button>
+            <button id="saveBarberScheduleBtn" class="ghost" type="button">Salvar só horários</button>
             <button id="clearBarberBtn" class="ghost" type="button">Limpar</button>
           </form>
-          <section id="barberSchedulePanel" class="panel schedule-panel hidden">
-            <div class="panel-title">
-              <h3>Expediente de atendimento</h3>
-              <small>Defina os dias e horários em que este profissional atende.</small>
-            </div>
-            <div id="barberScheduleFields"></div>
-            <button id="saveBarberScheduleBtn" class="primary" type="button">Salvar horários</button>
-            <div id="barberScheduleStatus" class="status"></div>
-          </section>
           <div id="barberStatus" class="status"></div>
         </section>
 

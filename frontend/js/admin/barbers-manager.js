@@ -4,7 +4,13 @@ import { state } from '../state.js';
 import { escapeHtml, inlineArg, singleQuotedArg } from '../utils/html.js';
 import { setStatus } from '../ui/status.js';
 import { loadAdmin } from './admin-data.js';
-import { hideBarberSchedulePanel, loadBarberSchedule } from './barber-schedule.js';
+import {
+  hideBarberSchedulePanel,
+  loadBarberSchedule,
+  persistBarberSchedule,
+  readSchedulePayload,
+  showBarberSchedulePanel
+} from './barber-schedule.js';
 
 export function renderBarbers(barbers) {
   barbers = barbers.map(barber => ({
@@ -27,12 +33,18 @@ export function renderBarbers(barbers) {
         Telefone: ${barber.phone}
       </small>
       <div class="item-actions">
-        <button class="ghost schedule-action" onclick="openBarberSchedule(${inlineArg(barber.id)})">Horários</button>
-        <button class="ghost" onclick="editBarber(${inlineArg(barber.id)})">Editar</button>
-        <button class="ghost danger-text" onclick="deleteBarber(${inlineArg(barber.id)})">Deletar</button>
+        <button class="ghost schedule-action" type="button" onclick="openBarberSchedule(${inlineArg(barber.id)})">Horários</button>
+        <button class="ghost" type="button" onclick="editBarber(${inlineArg(barber.id)})">Editar</button>
+        <button class="ghost danger-text" type="button" onclick="deleteBarber(${inlineArg(barber.id)})">Deletar</button>
       </div>
     </article>
   `).join('') : '<article class="empty">Nenhum barbeiro cadastrado.</article>';
+}
+
+export function prepareBarberModule() {
+  if (!$('barberId')?.value) {
+    showBarberSchedulePanel();
+  }
 }
 
 export function editBarber(id) {
@@ -58,7 +70,8 @@ export async function openBarberSchedule(id) {
 export function clearBarberForm() {
   $('barberForm').reset();
   $('barberId').value = '';
-  hideBarberSchedulePanel();
+  showBarberSchedulePanel();
+  setStatus($('barberStatus'), '');
   setStatus($('barberScheduleStatus'), '');
 }
 
@@ -77,19 +90,21 @@ export async function deleteBarber(id) {
   }
 }
 
-function fillBarberForm(barber) {
-  $('barberId').value = barber.id;
-  $('barberName').value = barber.name;
-  $('barberEmail').value = barber.email;
-  $('barberPhone').value = barber.phone;
-  $('barberSpecialization').value = barber.specialization || '';
-  $('barberPassword').value = '';
+function readScheduleForSubmit() {
+  try {
+    return readSchedulePayload();
+  } catch (error) {
+    setStatus($('barberScheduleStatus'), error.message, 'error');
+    return null;
+  }
 }
 
 export async function submitBarberForm(event) {
   event.preventDefault();
   setStatus($('barberStatus'), 'Salvando barbeiro...');
   const id = $('barberId').value;
+  const schedule = readScheduleForSubmit();
+  if (!schedule) return;
 
   if (id && !$('barberPassword').value) {
     try {
@@ -102,8 +117,9 @@ export async function submitBarberForm(event) {
           specialization: $('barberSpecialization').value.trim()
         })
       });
+      await persistBarberSchedule(id);
       clearBarberForm();
-      setStatus($('barberStatus'), 'Barbeiro atualizado com sucesso.', 'ok');
+      setStatus($('barberStatus'), 'Barbeiro e horários atualizados com sucesso.', 'ok');
       await loadAdmin();
     } catch (error) {
       setStatus($('barberStatus'), error.message, 'error');
@@ -117,21 +133,20 @@ export async function submitBarberForm(event) {
   }
 
   try {
-    const data = await api('/api/admin/barbers', {
+    await api('/api/admin/barbers', {
       method: 'POST',
       body: JSON.stringify({
         name: $('barberName').value.trim(),
         email: $('barberEmail').value.trim(),
         phone: $('barberPhone').value.trim(),
         specialization: $('barberSpecialization').value.trim(),
-        password: $('barberPassword').value
+        password: $('barberPassword').value,
+        schedule
       })
     });
-    fillBarberForm(data.barber);
-    setStatus($('barberStatus'), 'Barbeiro cadastrado. Defina o expediente abaixo.', 'ok');
+    clearBarberForm();
+    setStatus($('barberStatus'), 'Barbeiro cadastrado com horários de atendimento.', 'ok');
     await loadAdmin();
-    await loadBarberSchedule(data.barber.id);
-    $('barberSchedulePanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (error) {
     setStatus($('barberStatus'), error.message, 'error');
   }

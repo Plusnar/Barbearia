@@ -55,6 +55,10 @@ export function openAdminModule(id) {
   document.querySelectorAll('.admin-section').forEach((section) => {
     section.classList.toggle('hidden', section.dataset.adminSection !== id);
   });
+
+  if (id === 'barber') {
+    import('./barbers-manager.js').then(({ prepareBarberModule }) => prepareBarberModule());
+  }
 }
 
 export function initAdminNavigation() {
