@@ -5,7 +5,9 @@ import {
   clearBarberForm,
   deleteBarber,
   editBarber,
+  handleBarberListClick,
   openBarberSchedule,
+  startNewBarberForm,
   submitBarberForm
 } from './admin/barbers-manager.js';
 import { saveBarberSchedule, setupBarberSchedulePanel } from './admin/barber-schedule.js';
@@ -70,6 +72,8 @@ $('profitClearPeriodFilterBtn').addEventListener('click', () => {
 $('profitClearButton').addEventListener('click', clearProfitForm);
 $('clearServiceBtn').addEventListener('click', clearServiceForm);
 $('clearBarberBtn').addEventListener('click', clearBarberForm);
+$('newBarberBtn').addEventListener('click', startNewBarberForm);
+$('barberList').addEventListener('click', handleBarberListClick);
 $('saveBarberScheduleBtn').addEventListener('click', saveBarberSchedule);
 $('dateInput').addEventListener('change', refreshBookingAvailability);
 $('serviceSelect').addEventListener('change', refreshBookingAvailability);
@@ -199,9 +203,6 @@ $('serviceForm').addEventListener('submit', submitServiceForm);
 window.updateStatus = updateStatus;
 window.editService = editService;
 window.deleteService = deleteService;
-window.editBarber = editBarber;
-window.openBarberSchedule = openBarberSchedule;
-window.deleteBarber = deleteBarber;
 window.deleteProfitEntry = deleteProfitEntry;
 window.saveCommission = saveCommission;
 

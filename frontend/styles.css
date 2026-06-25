@@ -660,6 +660,82 @@ label span {
   gap: 14px;
 }
 
+.barber-module-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.barber-form-title {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.barber-editor {
+  margin-top: 8px;
+}
+
+.barber-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.barber-schedule-summary {
+  color: #f0c878;
+}
+
+.barber-schedule-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.schedule-grid-header,
+.schedule-row {
+  display: grid !important;
+  grid-template-columns: minmax(130px, 1.1fr) 1fr 1fr;
+  gap: 10px;
+  align-items: end;
+}
+
+.schedule-grid-header {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.schedule-row {
+  margin-top: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.schedule-row label {
+  width: auto;
+  margin: 0;
+}
+
+.schedule-row input[type="time"] {
+  width: 100%;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 .schedule-panel {
   margin: 8px 0 4px;
   padding: 14px;
@@ -693,13 +769,6 @@ label span {
 
 .barber-schedule-hint strong {
   color: var(--ink);
-}
-
-.schedule-row {
-  display: grid;
-  grid-template-columns: minmax(120px, 1fr) 1fr 1fr;
-  gap: 10px;
-  align-items: end;
 }
 
 .schedule-day-toggle {

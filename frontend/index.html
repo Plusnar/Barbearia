@@ -361,31 +361,74 @@
           </div>
         </section>
 
-        <section class="panel admin-section hidden" data-admin-section="barber">
-          <div class="panel-title">
-            <h3>Gerenciar barbeiros</h3>
-            <small>Cadastre profissionais e defina o expediente de atendimento (dias e horários).</small>
+        <section class="panel admin-section hidden span-full" data-admin-section="barber">
+          <div class="panel-title barber-module-header">
+            <div>
+              <h3>Barbeiros e horarios</h3>
+              <small>Cadastre profissionais e configure o expediente de cada um (dias e horarios).</small>
+            </div>
+            <button id="newBarberBtn" class="primary" type="button">Novo barbeiro</button>
           </div>
           <div id="barberList" class="list barber-list"></div>
-          <p id="barberScheduleHint" class="barber-schedule-hint hidden">Use o formulário abaixo para cadastrar um novo barbeiro e definir o expediente.</p>
-          <form id="barberForm" class="form-stack compact-form">
+          <form id="barberForm" class="form-stack compact-form barber-editor">
             <input id="barberId" type="hidden" />
+            <h4 id="barberFormTitle" class="barber-form-title">Novo barbeiro</h4>
             <label><span>Nome</span><input id="barberName" type="text" required /></label>
             <label><span>E-mail</span><input id="barberEmail" type="email" required /></label>
             <label><span>Telefone</span><input id="barberPhone" type="tel" required /></label>
             <label><span>Especialidade</span><input id="barberSpecialization" type="text" placeholder="Ex.: Cortes e barba" /></label>
-            <label><span>Senha inicial</span><input id="barberPassword" type="password" /></label>
+            <label><span id="barberPasswordLabel">Senha inicial</span><input id="barberPassword" type="password" /></label>
+
             <section id="barberSchedulePanel" class="schedule-panel">
               <div class="panel-title">
-                <h3>Horário de atendimento</h3>
-                <small>Marque os dias e defina início e fim do expediente deste barbeiro.</small>
+                <h3>Horario de atendimento</h3>
+                <small>Marque os dias e defina inicio e fim do expediente.</small>
               </div>
-              <div id="barberScheduleFields"></div>
+              <div class="schedule-grid-header">
+                <span>Dia</span>
+                <span>Inicio</span>
+                <span>Fim</span>
+              </div>
+              <div id="barberScheduleFields" class="barber-schedule-grid">
+                <div class="schedule-row" data-day="1">
+                  <label class="schedule-day-toggle"><input type="checkbox" class="schedule-enabled" data-day="1" checked /><span>Segunda</span></label>
+                  <label><span class="visually-hidden">Inicio</span><input type="time" class="schedule-start" data-day="1" value="09:00" /></label>
+                  <label><span class="visually-hidden">Fim</span><input type="time" class="schedule-end" data-day="1" value="20:00" /></label>
+                </div>
+                <div class="schedule-row" data-day="2">
+                  <label class="schedule-day-toggle"><input type="checkbox" class="schedule-enabled" data-day="2" checked /><span>Terca</span></label>
+                  <label><span class="visually-hidden">Inicio</span><input type="time" class="schedule-start" data-day="2" value="09:00" /></label>
+                  <label><span class="visually-hidden">Fim</span><input type="time" class="schedule-end" data-day="2" value="20:00" /></label>
+                </div>
+                <div class="schedule-row" data-day="3">
+                  <label class="schedule-day-toggle"><input type="checkbox" class="schedule-enabled" data-day="3" checked /><span>Quarta</span></label>
+                  <label><span class="visually-hidden">Inicio</span><input type="time" class="schedule-start" data-day="3" value="09:00" /></label>
+                  <label><span class="visually-hidden">Fim</span><input type="time" class="schedule-end" data-day="3" value="20:00" /></label>
+                </div>
+                <div class="schedule-row" data-day="4">
+                  <label class="schedule-day-toggle"><input type="checkbox" class="schedule-enabled" data-day="4" checked /><span>Quinta</span></label>
+                  <label><span class="visually-hidden">Inicio</span><input type="time" class="schedule-start" data-day="4" value="09:00" /></label>
+                  <label><span class="visually-hidden">Fim</span><input type="time" class="schedule-end" data-day="4" value="20:00" /></label>
+                </div>
+                <div class="schedule-row" data-day="5">
+                  <label class="schedule-day-toggle"><input type="checkbox" class="schedule-enabled" data-day="5" checked /><span>Sexta</span></label>
+                  <label><span class="visually-hidden">Inicio</span><input type="time" class="schedule-start" data-day="5" value="09:00" /></label>
+                  <label><span class="visually-hidden">Fim</span><input type="time" class="schedule-end" data-day="5" value="20:00" /></label>
+                </div>
+                <div class="schedule-row" data-day="6">
+                  <label class="schedule-day-toggle"><input type="checkbox" class="schedule-enabled" data-day="6" checked /><span>Sabado</span></label>
+                  <label><span class="visually-hidden">Inicio</span><input type="time" class="schedule-start" data-day="6" value="09:00" /></label>
+                  <label><span class="visually-hidden">Fim</span><input type="time" class="schedule-end" data-day="6" value="17:00" /></label>
+                </div>
+              </div>
               <div id="barberScheduleStatus" class="status"></div>
             </section>
-            <button class="primary" type="submit">Salvar barbeiro e horários</button>
-            <button id="saveBarberScheduleBtn" class="ghost" type="button">Salvar só horários</button>
-            <button id="clearBarberBtn" class="ghost" type="button">Limpar</button>
+
+            <div class="barber-form-actions">
+              <button class="primary" type="submit">Salvar barbeiro e horarios</button>
+              <button id="saveBarberScheduleBtn" class="ghost" type="button">Salvar somente horarios</button>
+              <button id="clearBarberBtn" class="ghost" type="button">Limpar</button>
+            </div>
           </form>
           <div id="barberStatus" class="status"></div>
         </section>

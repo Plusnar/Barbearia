@@ -304,6 +304,8 @@ export function updateBarber(barberId, body) {
   const email = body.email?.trim().toLowerCase();
   const phone = body.phone?.trim();
   const specialization = body.specialization?.trim() || 'Barbeiro';
+  const hasSchedule = Array.isArray(body.schedule);
+  const schedule = hasSchedule ? normalizeScheduleRows(body.schedule) : [];
 
   if (!name || !email || !phone) {
     const error = new Error('Missing required fields');
@@ -323,6 +325,18 @@ export function updateBarber(barberId, body) {
     throw error;
   }
 
+  if (hasSchedule && schedule.length === 0) {
+    const error = new Error('Informe pelo menos um dia de atendimento com horario valido');
+    error.status = 400;
+    throw error;
+  }
+
+  if (hasSchedule && schedule.length !== body.schedule.length) {
+    const error = new Error('Invalid day or time range in schedule');
+    error.status = 400;
+    throw error;
+  }
+
   return new Promise((resolve, reject) => {
     db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, barberId], (selectError, users) => {
       if (selectError) return reject(selectError);
@@ -334,11 +348,33 @@ export function updateBarber(barberId, body) {
         return;
       }
 
-      db.query(
-        'UPDATE users SET name = ?, email = ?, phone = ?, specialization = ? WHERE id = ? AND role = ?',
-        [name, email, phone, specialization, barberId, USER_ROLES.BARBER],
-        (updateError) => {
-          if (updateError) return reject(updateError);
+      db.getConnection(async (connectionError, connection) => {
+        if (connectionError) return reject(connectionError);
+
+        try {
+          await beginTransaction(connection);
+
+          const barbers = await queryAsync(connection, 'SELECT id FROM users WHERE id = ? AND role = ?', [barberId, USER_ROLES.BARBER]);
+          if (barbers.length === 0) {
+            const error = new Error('Barber not found');
+            error.status = 404;
+            throw error;
+          }
+
+          await queryAsync(
+            connection,
+            'UPDATE users SET name = ?, email = ?, phone = ?, specialization = ? WHERE id = ? AND role = ?',
+            [name, email, phone, specialization, barberId, USER_ROLES.BARBER]
+          );
+
+          if (hasSchedule) {
+            await ensureScheduleTable(connection);
+            await queryAsync(connection, 'DELETE FROM barber_working_hours WHERE barber_id = ?', [barberId]);
+            await insertScheduleRows(connection, barberId, schedule);
+          }
+
+          await commitTransaction(connection);
+          connection.release();
 
           resolve({
             id: barberId,
@@ -346,10 +382,15 @@ export function updateBarber(barberId, body) {
             email,
             phone,
             specialization,
-            role: USER_ROLES.BARBER
+            role: USER_ROLES.BARBER,
+            schedule: hasSchedule ? schedule : undefined
           });
+        } catch (error) {
+          await rollbackTransaction(connection);
+          connection.release();
+          reject(error);
         }
-      );
+      });
     });
   });
 }
