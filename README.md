@@ -383,4 +383,4 @@ npm run vercel:env-check
 
 ## Licença
 
-Defina a licença do seu fork (MIT, proprietária, etc.) conforme uso comercial ou revenda do template.
+Caso utilize esse repositório, garantir os créditos aos contribuidores.
