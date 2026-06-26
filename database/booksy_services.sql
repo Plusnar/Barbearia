@@ -1,0 +1,30 @@
+INSERT INTO services (id, name, description, duration, price, active)
+VALUES
+('booksy-cabelo-fade', 'Cabelo Fade (Degradê)', 'Cabelo', 35, 50.00, 1),
+('booksy-cabelo-infantil', 'Cabelo Infantil', 'Cabelo', 35, 50.00, 1),
+('booksy-cabelo-design-sobrancelha', 'Cabelo E Design Sobrancelha', 'Cabelo', 50, 70.00, 1),
+('booksy-cabelo-barba-completa', 'Cabelo E Barba Completa', 'Cabelo', 60, 90.00, 1),
+('booksy-cabelo-barba-sobrancelha', 'Cabelo, Barba e Sobrancelha', 'Cabelo', 60, 110.00, 1),
+('booksy-cabelo-social', 'Cabelo Social', 'Cabelo', 20, 45.00, 1),
+('booksy-cabelo-degrade-halison', 'Cabelo (degradê) Halison', 'Cabelo', 50, 55.00, 1),
+('booksy-cabelo-sobrancelha-halison', 'Cabelo e Sobrancelha (Halison)', 'Cabelo', 50, 75.00, 1),
+('booksy-cabelo-barba-halison', 'Cabelo e Barba (Halison)', 'Cabelo', 70, 100.00, 1),
+('booksy-cab-barb-sobrancelha-halison', 'Cab, Barb e Sobrancelha (Halison)', 'Cabelo', 105, 120.00, 1),
+('booksy-infantil-halison', 'Infantil (Halison)', 'Cabelo', 90, 60.00, 1),
+('booksy-raspado', 'Raspado', 'Cabelo', 20, 30.00, 1),
+('booksy-freestyle-desenho', 'Freestyle (Desenho)', 'Cabelo', 20, 10.00, 1),
+('booksy-designer-sobrancelha', 'Designer De Sobrancelha', 'Rosto', 10, 20.00, 1),
+('booksy-cera-quente-nariz', 'Cera Quente (Nariz)', 'Rosto', 20, 30.00, 1),
+('booksy-limpeza-pele', 'Limpeza de pele', 'Rosto', 35, 40.00, 1),
+('booksy-barba-completa', 'Barba Completa', 'Barba', 40, 40.00, 1),
+('booksy-bigode', 'Bigode', 'Barba', 5, 5.00, 1),
+('booksy-desenho-barba', 'Desenho Barba', 'Barba', 20, 25.00, 1),
+('booksy-luzes', 'Luzes', 'Química', 145, 170.00, 1),
+('booksy-coloracao', 'Coloração', 'Química', 30, 150.00, 1),
+('booksy-platinado', 'Platinado', 'Química', 180, 280.00, 1)
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  description = VALUES(description),
+  duration = VALUES(duration),
+  price = VALUES(price),
+  active = VALUES(active);

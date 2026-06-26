@@ -1,0 +1,228 @@
+### ============================================
+### BARBEARIA CASTILHO API - TESTES
+### ============================================
+### Como usar:
+### 1. Instale a extensao "REST Client" no VS Code
+### 2. Inicie o servidor: npm start
+### 3. Faca login e substitua seu_token_aqui pelo JWT retornado
+### ============================================
+
+### Registrar novo cliente
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Joao Silva",
+  "email": "joao@test.com",
+  "phone": "11999999999",
+  "password": "123456"
+}
+
+###
+
+### Login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@test.com",
+  "password": "123456"
+}
+
+###
+
+### Solicitar recuperacao de conta
+POST http://localhost:5000/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "joao@test.com"
+}
+
+###
+
+### Redefinir senha com codigo recebido
+POST http://localhost:5000/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "code": "123456",
+  "newPassword": "123456"
+}
+
+###
+
+### Perfil do usuario logado
+GET http://localhost:5000/api/user/profile
+Authorization: Bearer seu_token_aqui
+
+###
+
+### Alterar senha
+PUT http://localhost:5000/api/user/password
+Content-Type: application/json
+Authorization: Bearer seu_token_aqui
+
+{
+  "currentPassword": "123456",
+  "newPassword": "654321"
+}
+
+###
+
+### Listar servicos
+GET http://localhost:5000/api/services
+Authorization: Bearer seu_token_aqui
+
+###
+
+### Listar barbeiros disponiveis
+GET http://localhost:5000/api/services/barbers
+Authorization: Bearer seu_token_aqui
+
+###
+
+### Agendamentos do cliente
+GET http://localhost:5000/api/appointments/customer
+Authorization: Bearer seu_token_aqui
+
+###
+
+### Agendamentos do barbeiro
+GET http://localhost:5000/api/appointments/barber
+Authorization: Bearer seu_token_aqui
+
+###
+
+### Disponibilidade de horarios
+GET http://localhost:5000/api/appointments/availability?barberId=UUID_BARBEIRO&serviceId=UUID_SERVICO&date=2026-04-15
+Authorization: Bearer seu_token_aqui
+
+###
+
+### Criar agendamento
+POST http://localhost:5000/api/appointments/book
+Content-Type: application/json
+Authorization: Bearer seu_token_aqui
+
+{
+  "barberId": "uuid-do-barbeiro",
+  "serviceId": "uuid-do-servico",
+  "date": "2026-04-15",
+  "time": "10:00",
+  "notes": ""
+}
+
+###
+
+### Atualizar status do agendamento
+PUT http://localhost:5000/api/appointments/uuid-do-agendamento/status
+Content-Type: application/json
+Authorization: Bearer seu_token_aqui
+
+{
+  "status": "CONFIRMED"
+}
+
+###
+
+### Estatisticas admin
+GET http://localhost:5000/api/admin/statistics
+Authorization: Bearer seu_token_admin_aqui
+
+###
+
+### Distribuicao de lucros
+GET http://localhost:5000/api/admin/profit-distribution?startDate=2026-01-01&endDate=2026-12-31
+Authorization: Bearer seu_token_admin_aqui
+
+###
+
+### Lancamentos de lucro
+GET http://localhost:5000/api/admin/profit-entries
+Authorization: Bearer seu_token_admin_aqui
+
+###
+
+### Criar lancamento de lucro
+POST http://localhost:5000/api/admin/profit-entries
+Content-Type: application/json
+Authorization: Bearer seu_token_admin_aqui
+
+{
+  "source": "Corte masculino",
+  "date": "2026-04-15",
+  "amount": 50,
+  "commissionPercentage": 50,
+  "barberId": "uuid-do-barbeiro",
+  "paymentMethod": "Dinheiro",
+  "notes": ""
+}
+
+###
+
+### Listar barbeiros (admin)
+GET http://localhost:5000/api/admin/barbers
+Authorization: Bearer seu_token_admin_aqui
+
+###
+
+### Criar barbeiro (admin)
+POST http://localhost:5000/api/admin/barbers
+Content-Type: application/json
+Authorization: Bearer seu_token_admin_aqui
+
+{
+  "name": "Carlos Barbeiro",
+  "email": "carlos@test.com",
+  "phone": "11988887777",
+  "password": "123456",
+  "specialization": "Barbeiro"
+}
+
+###
+
+### Agenda geral (admin)
+GET http://localhost:5000/api/admin/appointments
+Authorization: Bearer seu_token_admin_aqui
+
+###
+
+### Criar servico (admin)
+POST http://localhost:5000/api/services
+Content-Type: application/json
+Authorization: Bearer seu_token_admin_aqui
+
+{
+  "name": "Corte masculino",
+  "description": "Corte padrao",
+  "duration": 30,
+  "price": 45
+}
+
+###
+
+### Testar notificacao de conta criada (dev)
+POST http://localhost:5000/api/auth/notifications/test
+Content-Type: application/json
+X-Notification-Test-Key: uma-chave-para-testar-envios
+
+{
+  "name": "Cliente Teste",
+  "email": "cliente@test.com",
+  "phone": "11999999999"
+}
+
+###
+
+### Testar notificacao de recuperacao (dev)
+POST http://localhost:5000/api/auth/notifications/recovery-test
+Content-Type: application/json
+X-Notification-Test-Key: uma-chave-para-testar-envios
+
+{
+  "name": "Cliente Teste",
+  "email": "cliente@test.com",
+  "phone": "11999999999",
+  "code": "123456"
+}
